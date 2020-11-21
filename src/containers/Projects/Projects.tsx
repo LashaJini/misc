@@ -1,8 +1,13 @@
 import React, { Component } from "react";
+import { Particles } from "./";
 
 class Projects extends Component {
   render() {
-    return <h1>Projects</h1>;
+    return (
+      <>
+        <Particles />
+      </>
+    );
   }
 }
 

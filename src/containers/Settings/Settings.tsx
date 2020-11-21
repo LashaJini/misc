@@ -1,9 +1,14 @@
-import React, { Component } from "react";
+import React from "react";
+import DarkMode from "./DarkMode";
+import { Typography } from "@material-ui/core";
 
-class Settings extends Component {
-  render() {
-    return <h1>Settingsk</h1>;
-  }
-}
+const Settings = () => {
+  return (
+    <>
+      <Typography variant="h4">Settings</Typography>
+      <DarkMode />
+    </>
+  );
+};
 
 export default Settings;
