@@ -1,5 +1,5 @@
 import React from "react";
-import { createMuiTheme } from "@material-ui/core/styles";
+/* import { createMuiTheme } from "@material-ui/core/styles"; */
 
 /* export type ThemeType = { dark: "dark" } | { light: "light" }; */
 export type ThemeType = "dark" | "light";

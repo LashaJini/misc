@@ -12,6 +12,7 @@ import {
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import FolderIcon from "@material-ui/icons/Folder";
+import { projectNames } from "./";
 
 const useStyles = makeStyles({
   list: {
@@ -25,17 +26,6 @@ const useStyles = makeStyles({
     color: "inherit",
   },
 });
-
-type ProjectTypes = {
-  projectName: string;
-  path: string;
-};
-const projectNames: Array<ProjectTypes> = [
-  {
-    projectName: "To Particles",
-    path: "/projects/to-particles",
-  },
-];
 
 type Anchor = "top" | "left" | "bottom" | "right";
 

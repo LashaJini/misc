@@ -1,26 +1,33 @@
 import React from "react";
 // WARNING: In order to this routing staff to work
 // you must import DEFAULT components
-import Particles from "../Projects/string-to-particles/Particles";
 import Home from "../Home/Home";
+
+import { projectNames } from "../Projects";
 
 export type ComponentRoutes = {
   name: string;
   path: string;
-  component: any;
+  component: any; // I don't like this
+  /* component: React.ReactElement; */
   icon?: React.ReactNode;
 };
 
-// TODO: Project Routes -> here
+const projectRoutes: Array<ComponentRoutes> = projectNames.map((project) => {
+  const result: ComponentRoutes = {
+    ...project,
+    name: project.projectName,
+    component: project.component || "div",
+  };
+
+  return result;
+});
+
 export const Routes: Array<ComponentRoutes> = [
+  ...projectRoutes,
   {
     name: "Home",
     path: "/",
     component: Home,
-  },
-  {
-    name: "To Particles",
-    path: "/projects/to-particles",
-    component: Particles,
   },
 ];
