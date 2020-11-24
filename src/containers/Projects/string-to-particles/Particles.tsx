@@ -3,6 +3,8 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import "./Particles.css";
 import Stats from "./Stats";
 import { AppBarContext } from "../../../context";
+import ParticlesLogic from "./ParticlesLogic";
+import { IStats, defaultStats } from "./ParticleInterfaces";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -18,6 +20,11 @@ const useStyles = makeStyles((theme: Theme) =>
 const Particles = () => {
   const classes = useStyles();
   const { toggleAppBar } = React.useContext(AppBarContext);
+  const [stats, setStats] = React.useState<IStats>(defaultStats);
+
+  const onStatsChange = (stats: IStats) => {
+    setStats(stats);
+  };
 
   /**
    * Whenever we navigate to Particles project,
@@ -28,10 +35,10 @@ const Particles = () => {
   }, [toggleAppBar]);
 
   return (
-    <div className={classes.root}>
-      <h1>Particles</h1>
+    <div className={classes.root} id="particles-project">
       <div>
-        <Stats />
+        <Stats handleStatsChange={onStatsChange} />
+        <ParticlesLogic stats={stats} />
       </div>
     </div>
   );

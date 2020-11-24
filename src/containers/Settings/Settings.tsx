@@ -6,7 +6,6 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  Button,
 } from "@material-ui/core";
 import SettingsIcon from "@material-ui/icons/Settings";
 
