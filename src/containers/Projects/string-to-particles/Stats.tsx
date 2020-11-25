@@ -17,21 +17,20 @@ import {
   Theme,
   useTheme,
 } from "@material-ui/core/styles";
-/* import { red, green, orange } from "@material-ui/core/colors"; */
 import AddCirleIcon from "@material-ui/icons/AddCircle";
-import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import { Link } from "react-router-dom";
 import { AppBarContext } from "../../../context";
 import { IStats, defaultStats } from "./ParticleInterfaces";
 
-const StyledMenu = withStyles({
+const StyledMenu = withStyles((theme: Theme) => ({
   paper: {
     border: "1px solid #d3d4d5",
   },
-})((props: MenuProps) => (
+}))((props: MenuProps) => (
   <Menu
     elevation={0}
-    /* getContentAnchorEl={null} */
+    getContentAnchorEl={null}
+    autoFocus={false}
     anchorOrigin={{
       vertical: "top",
       horizontal: "center",
@@ -46,13 +45,9 @@ const StyledMenu = withStyles({
 
 const StyledMenuItem = withStyles((theme: Theme) => ({
   root: {
-    /* "&:focus": { */
-    /*   backgroundColor: theme.palette.primary.main, */
-    /*   "& .MuiListItemIcon-root. & .MuiListItemText-primary": { */
-    /*     color: theme.palette.common.white, */
-    /*   }, */
-    /* }, */
-    "&:click": {},
+    "&:hover": {
+      backgroundColor: theme.palette.background.paper,
+    },
   },
 }))(MenuItem);
 
@@ -106,6 +101,10 @@ const Stats = (props: Props) => {
     setAnchorEl(event.currentTarget);
   };
 
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   const fab = {
     color: "primary" as "primary",
     className: classes.fab,
@@ -120,12 +119,9 @@ const Stats = (props: Props) => {
     exit: theme.transitions.duration.leavingScreen,
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
   const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setText(event.target.value);
+    /* console.log("in text change", text); */
   };
 
   const handleParticleColorChange = (
@@ -141,7 +137,20 @@ const Stats = (props: Props) => {
   const handleParticleRadiusChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setParticleRadius(Number(event.target.value));
+    // TODO: warn!
+    const val =
+      Number(event.target.value) > 0
+        ? Number(event.target.value)
+        : defaultStats.particleRadius;
+    setParticleRadius(val);
+  };
+
+  const resetToDefaultStats = () => {
+    setParticleRadius(defaultStats.particleRadius);
+    setPx(defaultStats.px);
+    setParticleColor(defaultStats.particleColor);
+    setText(defaultStats.text);
+    handleStatsChange(defaultStats);
   };
 
   const updateStats = () => {
@@ -152,6 +161,7 @@ const Stats = (props: Props) => {
       particleRadius: particleRadius,
       particleColor: particleColor,
     };
+    /* console.log("in update stats", stats); */
     handleStatsChange(stats);
   };
 
@@ -185,17 +195,14 @@ const Stats = (props: Props) => {
         keepMounted
       >
         <StyledMenuItem>
-          <Grid container spacing={1} alignItems="flex-end">
+          <Grid container spacing={2} alignItems="flex-end">
             <Grid item>
               <Grid container spacing={1} alignItems="flex-end">
-                <Grid item>
-                  <FiberManualRecordIcon />
-                </Grid>
                 <Grid item>
                   <TextField
                     id="text"
                     label="Text"
-                    defaultValue={defaultStats.text}
+                    value={text}
                     type="text"
                     onChange={handleTextChange}
                   />
@@ -203,13 +210,10 @@ const Stats = (props: Props) => {
               </Grid>
               <Grid container spacing={1} alignItems="flex-end">
                 <Grid item>
-                  <FiberManualRecordIcon />
-                </Grid>
-                <Grid item>
                   <TextField
                     id="px"
                     label="Text Size"
-                    defaultValue={defaultStats.px}
+                    value={px}
                     type="number"
                     onChange={handlePxChange}
                   />
@@ -217,13 +221,10 @@ const Stats = (props: Props) => {
               </Grid>
               <Grid container spacing={1} alignItems="flex-end">
                 <Grid item>
-                  <FiberManualRecordIcon />
-                </Grid>
-                <Grid item>
                   <TextField
                     id="particleRadius"
                     label="Particle Radius"
-                    defaultValue={defaultStats.particleRadius}
+                    value={particleRadius}
                     type="number"
                     onChange={handleParticleRadiusChange}
                   />
@@ -231,14 +232,11 @@ const Stats = (props: Props) => {
               </Grid>
               <Grid container spacing={1} alignItems="flex-end">
                 <Grid item>
-                  <FiberManualRecordIcon />
-                </Grid>
-                <Grid item>
                   <TextField
                     id="particleColor"
-                    label="Particle Color"
-                    defaultValue={defaultStats.particleColor}
-                    type="text"
+                    helperText="pick a color"
+                    value={particleColor}
+                    type="color"
                     onChange={handleParticleColorChange}
                   />
                 </Grid>
@@ -249,14 +247,14 @@ const Stats = (props: Props) => {
         <StyledMenuItem>
           <Typography
             className={classes.messedUp}
-            onClick={() => handleStatsChange(defaultStats)}
+            onClick={resetToDefaultStats}
           >
             Hehe, I Messed up... Defaults Please!
           </Typography>
         </StyledMenuItem>
         <StyledMenuItem>
           <Button {...buttonStyle} onClick={updateStats} color="secondary">
-            <Typography>Generate Particles</Typography>
+            Generate Particles
           </Button>
         </StyledMenuItem>
         <StyledMenuItem>
@@ -266,7 +264,7 @@ const Stats = (props: Props) => {
             to="/"
             onClick={() => toggleAppBar(true)}
           >
-            <Typography>Home</Typography>
+            Home
           </Button>
         </StyledMenuItem>
       </StyledMenu>

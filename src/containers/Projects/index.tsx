@@ -7,16 +7,23 @@ type ProjectTypes = {
   component?: any; // I don't like this
 };
 
+const devProjects: Array<ProjectTypes> =
+  process.env.NODE !== "production"
+    ? [
+        {
+          projectName: "Playground",
+          path: "/projects/playground",
+          component: Playground,
+        },
+      ]
+    : [];
+
 export const projectNames: Array<ProjectTypes> = [
+  ...devProjects,
   {
     projectName: "To Particles",
     path: "/projects/to-particles",
     component: Particles,
-  },
-  {
-    projectName: "Playground",
-    path: "/projects/playground",
-    component: Playground,
   },
 ];
 

@@ -27,10 +27,16 @@ export interface IStats {
 
 const defaultStats: IStats = {
   text: "😈",
+  /* text: "🐶", */
+  /* text: "👻", */
+  /* text: "👾", */
+  /* text: "👽", */
+  /* text: "😡", */
   font: "sans-serif",
   px: 80,
-  particleRadius: 3.5,
-  particleColor: "yellow",
+  particleRadius: 4.5,
+  /* particleColor: "purple", */
+  particleColor: "#631D5E",
 };
 
 export { defaultStats, CanvasStyle, getPixelRatio };

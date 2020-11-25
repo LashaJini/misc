@@ -3,6 +3,7 @@ import React from "react";
 import Box from "@material-ui/core/Box";
 import { IStats, CanvasStyle, getPixelRatio } from "./ParticleInterfaces";
 import { defaultStats } from "./ParticleInterfaces";
+import { useWindowSize } from "../../../components/useWindowSize";
 
 type MouseType = {
   x: number | null;
@@ -35,6 +36,9 @@ interface Canvas {
   stepY: number;
   paddingX: number;
   paddingY: number;
+  opacity: number;
+  textStartX: number;
+  textStartY: number;
 }
 
 interface Particle {
@@ -61,12 +65,12 @@ interface Props {
   stats: IStats;
 }
 
-/* class ParticlesLogic extends React.Component<Props> { */
-// When input is emoji, I Calculate  width/height incorrectly
 const ParticlesLogic = (props: Props) => {
   const classes = CanvasStyle;
   const canvasRef: any = React.useRef(null);
+  const [w, h] = useWindowSize();
   const { text, px, font, particleRadius, particleColor } = props.stats;
+  /* const [canvasSize, setCanvasSize] = React.useState<[number, number]>([0, 0]); */
   const ctxFont = `${px}px ${font}`;
   const [CA, setCA] = React.useState<Canvas>({
     baseHeight: 0,
@@ -75,69 +79,81 @@ const ParticlesLogic = (props: Props) => {
     newHeight: 0,
     distanceFromTopX: 0,
     distanceFromTopY: 0,
-    scaleXby: 8,
-    scaleYby: 8,
+    scaleXby: 5,
+    scaleYby: 5,
     stepX: 2,
     stepY: 2,
-    paddingX: 5,
-    paddingY: 5,
+    paddingX: 50,
+    paddingY: 50,
+    opacity: 128,
+    textStartX: 0,
+    textStartY: 10,
   });
 
   const init: any = React.useRef(() => {});
 
   React.useEffect(() => {
     const canvas: any = canvasRef.current;
+    function doit() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const ctx = canvas.getContext("2d");
+
+      const ratio = getPixelRatio(ctx);
+
+      /* const width: number = parseInt( */
+      /*   getComputedStyle(canvas).getPropertyValue("width").slice(0, -2) */
+      /* ); */
+      /* const height = parseInt( */
+      /*   getComputedStyle(canvas).getPropertyValue("height").slice(0, -2) */
+      /* ); */
+      /* canvas.width = width * ratio; */
+      /* canvas.height = height * ratio; */
+      /* canvas.style.width = `${w}px`; */
+      /* canvas.style.height = `${h}px`; */
+
+      canvas.width = w * ratio;
+      canvas.height = h * ratio;
+      canvas.style.width = `${w || canvas.width}px`;
+      canvas.style.height = `${h || canvas.height}px`;
+
+      ctx.fillStyle = classes.ctx.backgroundColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = ctxFont;
+      ctx.textBaseline = "bottom";
+
+      init.current(ctx);
+    }
     canvas.addEventListener("mousemove", function (event: any) {
       mouse.x = event.x;
       mouse.y = event.y;
     });
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const ctx = canvas.getContext("2d");
+    doit();
+    return () => window.removeEventListener("mousemove", doit);
+  }, [w, h, classes, props.stats, ctxFont, init]);
 
-    const ratio = getPixelRatio(ctx);
-    const width: number = parseInt(
-      getComputedStyle(canvas).getPropertyValue("width").slice(0, -2)
-    );
-    const height = parseInt(
-      getComputedStyle(canvas).getPropertyValue("height").slice(0, -2)
-    );
-
-    canvas.width = width * ratio;
-    canvas.height = height * ratio;
-    /* this.canvas.style.width = `${this.canvas.width}`; */
-    /* this.canvas.style.height = `${this.canvas.height}`; */
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    ctx.fillStyle = classes.ctx.backgroundColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = ctxFont;
-    ctx.textBaseline = "bottom";
-
-    init.current(canvas, ctx);
-  }, [classes, props.stats, ctxFont, init]);
-
-  init.current = (canvas: any, ctx: any) => {
+  init.current = (ctx: any) => {
     const textStats: any = ctx.measureText(text);
     CA.baseHeight =
       textStats.actualBoundingBoxAscent - textStats.actualBoundingBoxDescent;
     CA.baseWidth = textStats.width;
     CA.newWidth = CA.baseWidth * CA.scaleXby;
     CA.newHeight = CA.baseHeight * CA.scaleYby;
-    CA.distanceFromTopX = (canvas.width - CA.newWidth) / 2;
-    CA.distanceFromTopY = (canvas.height - CA.newHeight) / 2;
+    CA.distanceFromTopX = (ctx.canvas.width - CA.newWidth) / 2;
+    CA.distanceFromTopY = (ctx.canvas.height - CA.newHeight) / 2;
 
     ctx.fillStyle = "white";
-    ctx.fillText(text, 0, px);
+    ctx.fillText(text, CA.textStartX, px + CA.textStartY);
 
-    const imageWidth = textStats.width + CA.paddingX;
-    const imageHeight = CA.baseHeight + CA.paddingY;
+    const imageWidth = textStats.width + CA.paddingX + CA.textStartX;
+    const imageHeight = CA.baseHeight + CA.paddingY + CA.textStartY;
     const tempImageData: CtxImageDataType = ctx.getImageData(
       0,
       0,
       imageWidth,
       imageHeight
     );
+    /* console.log(tempImageData.data.length); */
 
     drawInitialParticles(ctx, tempImageData, imageWidth, imageHeight);
   };
@@ -151,8 +167,9 @@ const ParticlesLogic = (props: Props) => {
     ctx.fillStyle = classes.ctx.backgroundColor;
     // clear input text
     ctx.fillRect(0, 0, imageWidth, imageHeight);
+    /* ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height); */
 
-    const getIndices = (
+    const getIndex = (
       x: number,
       y: number,
       width: number,
@@ -162,13 +179,14 @@ const ParticlesLogic = (props: Props) => {
     };
 
     let tempParticles: Array<Particle> = [];
-    for (let i = 0; i < imageData.width; i += CA.stepX) {
-      for (let j = 0; j < imageData.width; j += CA.stepY) {
-        const index = getIndices(i, j, imageData.width);
+    for (let i = CA.textStartX; i < imageData.width; i += CA.stepX) {
+      // TODO: 15
+      for (let j = CA.textStartY - 15; j < imageData.height; j += CA.stepY) {
+        const index = getIndex(i, j, imageData.width);
         const val = imageData.data[index];
-        if (val > 128) {
-          const x = i * CA.scaleXby + CA.distanceFromTopX;
-          const y = j * CA.scaleYby + CA.distanceFromTopY;
+        if (val > CA.opacity) {
+          const x = (i - CA.textStartX) * CA.scaleXby + CA.distanceFromTopX;
+          const y = (j - CA.textStartY) * CA.scaleYby + CA.distanceFromTopY;
           const particle: Particle = {
             ...defaultParticle,
             initialX: x,
@@ -184,6 +202,8 @@ const ParticlesLogic = (props: Props) => {
         }
       }
     }
+    /* console.log(imageData.data.length, imageData.width, imageData.height); */
+    /* console.log(tempParticles.length); */
   };
 
   const drawCircle = (ctx: any, particle: Particle) => {
