@@ -3,7 +3,7 @@ import React from "react";
 import Box from "@material-ui/core/Box";
 import { IStats, CanvasStyle, getPixelRatio } from "./ParticleInterfaces";
 import { defaultStats } from "./ParticleInterfaces";
-import { useWindowSize } from "../../../components/useWindowSize";
+import { useWindowSize } from "../../../hooks/useWindowSize";
 
 type MouseType = {
   x: number | null;
@@ -52,13 +52,23 @@ interface Particle {
 }
 
 const defaultParticle: Particle = {
-  radius: defaultStats.particleRadius,
+  radius: 4.5,
   initialX: 0,
   initialY: 0,
   x: 0,
   y: 0,
   val: 0,
   color: defaultStats.particleColor,
+};
+
+interface ParticleStats {
+  particleRadius: number;
+  particleColor: string;
+}
+
+const defaultParticleStats: ParticleStats = {
+  particleRadius: defaultParticle.radius,
+  particleColor: defaultParticle.color,
 };
 
 interface Props {
@@ -69,7 +79,15 @@ const ParticlesLogic = (props: Props) => {
   const classes = CanvasStyle;
   const canvasRef: any = React.useRef(null);
   const [w, h] = useWindowSize();
-  const { text, px, font, particleRadius, particleColor } = props.stats;
+  const {
+    text,
+    px,
+    font,
+    particleRadius,
+    particleColor,
+    scale,
+    step,
+  } = props.stats;
   /* const [canvasSize, setCanvasSize] = React.useState<[number, number]>([0, 0]); */
   const ctxFont = `${px}px ${font}`;
   const [CA, setCA] = React.useState<Canvas>({
@@ -79,16 +97,19 @@ const ParticlesLogic = (props: Props) => {
     newHeight: 0,
     distanceFromTopX: 0,
     distanceFromTopY: 0,
-    scaleXby: 5,
-    scaleYby: 5,
-    stepX: 2,
-    stepY: 2,
+    scaleXby: scale[0] || 5,
+    scaleYby: scale[1] || 5,
+    stepX: step[0] || 2,
+    stepY: step[1] || 2,
     paddingX: 50,
     paddingY: 50,
     opacity: 128,
     textStartX: 0,
     textStartY: 10,
   });
+  const [particleStats, setParticleStats] = React.useState<ParticleStats>(
+    defaultParticleStats
+  );
 
   const init: any = React.useRef(() => {});
 
@@ -100,17 +121,6 @@ const ParticlesLogic = (props: Props) => {
       const ctx = canvas.getContext("2d");
 
       const ratio = getPixelRatio(ctx);
-
-      /* const width: number = parseInt( */
-      /*   getComputedStyle(canvas).getPropertyValue("width").slice(0, -2) */
-      /* ); */
-      /* const height = parseInt( */
-      /*   getComputedStyle(canvas).getPropertyValue("height").slice(0, -2) */
-      /* ); */
-      /* canvas.width = width * ratio; */
-      /* canvas.height = height * ratio; */
-      /* canvas.style.width = `${w}px`; */
-      /* canvas.style.height = `${h}px`; */
 
       canvas.width = w * ratio;
       canvas.height = h * ratio;
@@ -134,19 +144,50 @@ const ParticlesLogic = (props: Props) => {
 
   init.current = (ctx: any) => {
     const textStats: any = ctx.measureText(text);
-    CA.baseHeight =
+
+    const currScaleXBy = scale[0] || CA.scaleXby;
+    const currScaleYBy = scale[1] || CA.scaleYby;
+    const currBaseHeight =
       textStats.actualBoundingBoxAscent - textStats.actualBoundingBoxDescent;
-    CA.baseWidth = textStats.width;
-    CA.newWidth = CA.baseWidth * CA.scaleXby;
-    CA.newHeight = CA.baseHeight * CA.scaleYby;
-    CA.distanceFromTopX = (ctx.canvas.width - CA.newWidth) / 2;
-    CA.distanceFromTopY = (ctx.canvas.height - CA.newHeight) / 2;
+    const currBaseWidth = textStats.width;
+    const currNewWidth = currBaseWidth * currScaleXBy;
+    const currNewHeight = currBaseHeight * currScaleYBy;
+    const currDistanceFromTopX = (ctx.canvas.width - currNewWidth) / 2;
+    const currDistanceFromTopY = (ctx.canvas.height - currNewHeight) / 2;
+    const currStepX = step[0] || CA.stepX;
+    const currStepY = step[1] || CA.stepY;
+
+    const currCA = {
+      ...CA,
+      scaleXby: currScaleXBy,
+      scaleYby: currScaleYBy,
+      baseHeight: currBaseHeight,
+      baseWidth: currBaseWidth,
+      newWidth: currNewWidth,
+      newHeight: currNewHeight,
+      distanceFromTopX: currDistanceFromTopX,
+      distanceFromTopY: currDistanceFromTopY,
+      stepX: currStepX,
+      stepY: currStepY,
+    };
+
+    const currParticleRadius =
+      Number(particleRadius) > 0
+        ? Number(particleRadius)
+        : defaultParticleStats.particleRadius;
+    const currParticleColor = particleColor;
+
+    const currParticleStats = {
+      ...particleStats,
+      particleRadius: currParticleRadius,
+      particleColor: currParticleColor,
+    };
 
     ctx.fillStyle = "white";
-    ctx.fillText(text, CA.textStartX, px + CA.textStartY);
+    ctx.fillText(text, CA.textStartX, (px || 0) + CA.textStartY);
 
     const imageWidth = textStats.width + CA.paddingX + CA.textStartX;
-    const imageHeight = CA.baseHeight + CA.paddingY + CA.textStartY;
+    const imageHeight = currBaseHeight + CA.paddingY + CA.textStartY;
     const tempImageData: CtxImageDataType = ctx.getImageData(
       0,
       0,
@@ -154,12 +195,27 @@ const ParticlesLogic = (props: Props) => {
       imageHeight
     );
     /* console.log(tempImageData.data.length); */
+    setCA({
+      ...currCA,
+    });
+    setParticleStats({
+      ...currParticleStats,
+    });
 
-    drawInitialParticles(ctx, tempImageData, imageWidth, imageHeight);
+    drawInitialParticles(
+      ctx,
+      currCA,
+      currParticleStats,
+      tempImageData,
+      imageWidth,
+      imageHeight
+    );
   };
 
   const drawInitialParticles = (
     ctx: any,
+    CA: Canvas,
+    particleStats: ParticleStats,
     imageData: CtxImageDataType,
     imageWidth: number,
     imageHeight: number
@@ -167,7 +223,6 @@ const ParticlesLogic = (props: Props) => {
     ctx.fillStyle = classes.ctx.backgroundColor;
     // clear input text
     ctx.fillRect(0, 0, imageWidth, imageHeight);
-    /* ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height); */
 
     const getIndex = (
       x: number,
@@ -194,8 +249,8 @@ const ParticlesLogic = (props: Props) => {
             x,
             y,
             val: val,
-            radius: particleRadius,
-            color: particleColor,
+            radius: particleStats.particleRadius,
+            color: particleStats.particleColor,
           };
           drawCircle(ctx, particle);
           tempParticles.push(particle);

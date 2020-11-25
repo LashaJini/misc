@@ -17,26 +17,41 @@ const getPixelRatio = (context: any) => {
   return (window.devicePixelRatio || 1) / backingStore;
 };
 
+export type StepType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | undefined;
+
 export interface IStats {
   text: string;
   font: string;
-  px: number;
-  particleRadius: number;
+  px: number | undefined;
+  particleRadius: number | undefined;
   particleColor: string;
+  scale: [number | undefined, number | undefined];
+  step: [StepType, StepType];
 }
 
+const textArray: Array<string> = ["😈", "22ci❤️", "😡"];
+const colorArray: Array<string> = ["#631D5E", "#ff1500", "#036e20"];
+
+const getRandomStats = () => {
+  const randomIndex = Math.floor(Math.random() * textArray.length);
+
+  const result = {
+    text: textArray[randomIndex],
+    color: colorArray[randomIndex],
+  };
+  return result;
+};
+
+const randomStats = getRandomStats();
+
 const defaultStats: IStats = {
-  text: "😈",
-  /* text: "🐶", */
-  /* text: "👻", */
-  /* text: "👾", */
-  /* text: "👽", */
-  /* text: "😡", */
+  text: randomStats.text,
   font: "sans-serif",
   px: 80,
   particleRadius: 4.5,
-  /* particleColor: "purple", */
-  particleColor: "#631D5E",
+  particleColor: randomStats.color,
+  scale: [5, 5],
+  step: [2, 2],
 };
 
 export { defaultStats, CanvasStyle, getPixelRatio };

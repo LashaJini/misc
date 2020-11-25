@@ -21,7 +21,7 @@ const Settings = () => {
   };
 
   return (
-    <div>
+    <>
       <IconButton
         edge="start"
         aria-controls="simple-menu"
@@ -43,7 +43,7 @@ const Settings = () => {
         <Divider variant="middle" />
         <DarkMode />
       </Menu>
-    </div>
+    </>
   );
 };
 

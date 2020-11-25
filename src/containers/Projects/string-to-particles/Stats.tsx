@@ -1,5 +1,9 @@
 import React from "react";
 import {
+  FormControl,
+  FormHelperText,
+  Input,
+  InputLabel,
   Button,
   Typography,
   Menu,
@@ -20,7 +24,7 @@ import {
 import AddCirleIcon from "@material-ui/icons/AddCircle";
 import { Link } from "react-router-dom";
 import { AppBarContext } from "../../../context";
-import { IStats, defaultStats } from "./ParticleInterfaces";
+import { IStats, defaultStats, StepType } from "./ParticleInterfaces";
 
 const StyledMenu = withStyles((theme: Theme) => ({
   paper: {
@@ -47,9 +51,10 @@ const StyledMenuItem = withStyles((theme: Theme) => ({
   root: {
     "&:hover": {
       backgroundColor: theme.palette.background.paper,
+      cursor: "default",
     },
   },
-}))(MenuItem);
+}))((props: any) => <MenuItem disableRipple={true} {...props} />); // :/ any
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -67,6 +72,16 @@ const useStyles = makeStyles((theme: Theme) =>
     messedUp: {
       fontSize: "0.6rem",
       textDecoration: "underline",
+      cursor: "pointer",
+    },
+    scale: {
+      width: "2em",
+    },
+    formControl: {
+      /* width: "25%", */
+    },
+    step: {
+      width: "4em",
     },
   })
 );
@@ -89,12 +104,20 @@ const Stats = (props: Props) => {
   const { toggleAppBar } = React.useContext(AppBarContext);
   const { handleStatsChange } = props;
   const [text, setText] = React.useState<string>(defaultStats.text);
+  const [px, setPx] = React.useState<number | undefined>(defaultStats.px);
+  const [scaleX, setScaleX] = React.useState<number | undefined>(
+    defaultStats.scale[0]
+  );
+  const [scaleY, setScaleY] = React.useState<number | undefined>(
+    defaultStats.scale[1]
+  );
+  const [stepX, setStepX] = React.useState<StepType>(defaultStats.step[0]);
+  const [stepY, setStepY] = React.useState<StepType>(defaultStats.step[1]);
+  const [particleRadius, setParticleRadius] = React.useState<
+    number | undefined
+  >(defaultStats.particleRadius);
   const [particleColor, setParticleColor] = React.useState<string>(
     defaultStats.particleColor
-  );
-  const [px, setPx] = React.useState<number>(defaultStats.px);
-  const [particleRadius, setParticleRadius] = React.useState<number>(
-    defaultStats.particleRadius
   );
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -124,6 +147,36 @@ const Stats = (props: Props) => {
     /* console.log("in text change", text); */
   };
 
+  const handleScaleX = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setScaleX(parseInt(event.target.value));
+  };
+
+  const handleScaleY = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setScaleY(parseInt(event.target.value));
+  };
+
+  const handleStepXChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // [1-10]
+    let val: any = parseInt(event.target.value);
+    if (val < 1 || val > 10) {
+      val = defaultStats.step[0];
+    }
+    val = val as StepType;
+
+    setStepX(val);
+  };
+
+  const handleStepYChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // [1-10]
+    let val: any = parseInt(event.target.value);
+    if (val < 1 || val > 10) {
+      val = defaultStats.step[1];
+    }
+    val = val as StepType;
+
+    setStepY(val);
+  };
+
   const handleParticleColorChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -131,18 +184,13 @@ const Stats = (props: Props) => {
   };
 
   const handlePxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPx(Number(event.target.value));
+    setPx(parseInt(event.target.value));
   };
 
   const handleParticleRadiusChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // TODO: warn!
-    const val =
-      Number(event.target.value) > 0
-        ? Number(event.target.value)
-        : defaultStats.particleRadius;
-    setParticleRadius(val);
+    setParticleRadius(parseFloat(event.target.value));
   };
 
   const resetToDefaultStats = () => {
@@ -150,6 +198,10 @@ const Stats = (props: Props) => {
     setPx(defaultStats.px);
     setParticleColor(defaultStats.particleColor);
     setText(defaultStats.text);
+    setScaleX(defaultStats.scale[0]);
+    setScaleY(defaultStats.scale[1]);
+    setStepX(defaultStats.step[0]);
+    setStepY(defaultStats.step[1]);
     handleStatsChange(defaultStats);
   };
 
@@ -160,6 +212,8 @@ const Stats = (props: Props) => {
       px: px,
       particleRadius: particleRadius,
       particleColor: particleColor,
+      scale: [scaleX, scaleY],
+      step: [stepX, stepY],
     };
     /* console.log("in update stats", stats); */
     handleStatsChange(stats);
@@ -195,61 +249,141 @@ const Stats = (props: Props) => {
         keepMounted
       >
         <StyledMenuItem>
-          <Grid container spacing={2} alignItems="flex-end">
-            <Grid item>
-              <Grid container spacing={1} alignItems="flex-end">
-                <Grid item>
-                  <TextField
-                    id="text"
-                    label="Text"
-                    value={text}
-                    type="text"
-                    onChange={handleTextChange}
-                  />
+          <Grid
+            container
+            direction="column"
+            alignItems="flex-start"
+            spacing={2}
+          >
+            <Grid item container spacing={0} alignItems="flex-end" xs={12}>
+              <Grid item xs={12}>
+                <TextField
+                  id="text"
+                  variant="outlined"
+                  label="Text"
+                  value={text}
+                  type="text"
+                  onChange={handleTextChange}
+                  fullWidth
+                />
+              </Grid>
+            </Grid>
+            <Grid item container spacing={0} alignItems="flex-end" xs={12}>
+              <Grid item xs={12}>
+                <TextField
+                  id="px"
+                  label="Text Size"
+                  value={px}
+                  type="number"
+                  onChange={handlePxChange}
+                  fullWidth
+                />
+              </Grid>
+            </Grid>
+            <Grid item container spacing={0} alignItems="flex-end" xs={12}>
+              <Grid item xs={12}>
+                <TextField
+                  id="particleRadius"
+                  label="Particle Radius"
+                  value={particleRadius}
+                  type="number"
+                  onChange={handleParticleRadiusChange}
+                  fullWidth
+                />
+              </Grid>
+            </Grid>
+            <Grid item container spacing={0} alignItems="flex-end" xs={12}>
+              <Grid item xs={12}>
+                <TextField
+                  id="particleColor"
+                  helperText="pick a color"
+                  value={particleColor}
+                  type="color"
+                  onChange={handleParticleColorChange}
+                  fullWidth
+                />
+              </Grid>
+            </Grid>
+            <Grid item container spacing={0} alignItems="flex-end" xs={12}>
+              <Grid item container spacing={8}>
+                <Grid item xs={2} lg={2}>
+                  <FormControl className={classes.formControl} size="small">
+                    <InputLabel htmlFor="scaleX">x</InputLabel>
+                    <Input
+                      id="scaleX"
+                      type="number"
+                      value={scaleX}
+                      className={classes.scale}
+                      onChange={handleScaleX}
+                    />
+                    <FormHelperText>Scale</FormHelperText>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={2} lg={2}>
+                  <FormControl className={classes.formControl} size="small">
+                    <InputLabel htmlFor="scaleY">y</InputLabel>
+                    <Input
+                      id="scaleY"
+                      type="number"
+                      className={classes.scale}
+                      value={scaleY}
+                      onChange={handleScaleY}
+                    />
+                    <FormHelperText>Scale</FormHelperText>
+                  </FormControl>
                 </Grid>
               </Grid>
-              <Grid container spacing={1} alignItems="flex-end">
-                <Grid item>
-                  <TextField
-                    id="px"
-                    label="Text Size"
-                    value={px}
-                    type="number"
-                    onChange={handlePxChange}
-                  />
+            </Grid>
+            <Grid item container spacing={0} alignItems="flex-end" xs={12}>
+              <Typography
+                variant="subtitle1"
+                style={{ fontSize: "0.9rem" }}
+                className={classes.scale}
+              >
+                Change # Of Particles On:
+                <br />
+                <span style={{ fontSize: "0.7rem" }}>
+                  (1 is max, 10 is min)
+                </span>
+              </Typography>
+              <Grid item container spacing={10}>
+                <Grid item xs={2} lg={2}>
+                  <FormControl className={classes.formControl}>
+                    <Input
+                      id="stepX"
+                      type="number"
+                      className={classes.step}
+                      inputProps={{ min: 1, max: 10 }}
+                      value={stepX}
+                      startAdornment="X:"
+                      onChange={handleStepXChange}
+                    />
+                  </FormControl>
                 </Grid>
-              </Grid>
-              <Grid container spacing={1} alignItems="flex-end">
-                <Grid item>
-                  <TextField
-                    id="particleRadius"
-                    label="Particle Radius"
-                    value={particleRadius}
-                    type="number"
-                    onChange={handleParticleRadiusChange}
-                  />
-                </Grid>
-              </Grid>
-              <Grid container spacing={1} alignItems="flex-end">
-                <Grid item>
-                  <TextField
-                    id="particleColor"
-                    helperText="pick a color"
-                    value={particleColor}
-                    type="color"
-                    onChange={handleParticleColorChange}
-                  />
+                <Grid item xs={2} lg={2}>
+                  <FormControl className={classes.formControl}>
+                    <Input
+                      id="stepY"
+                      type="number"
+                      className={classes.step}
+                      inputProps={{ min: 1, max: 10 }}
+                      value={stepY}
+                      startAdornment="Y:"
+                      onChange={handleStepYChange}
+                    />
+                  </FormControl>
                 </Grid>
               </Grid>
             </Grid>
           </Grid>
         </StyledMenuItem>
+        <br />
         <StyledMenuItem>
           <Typography
             className={classes.messedUp}
             onClick={resetToDefaultStats}
           >
-            Hehe, I Messed up... Defaults Please!
+            Hehe, I Messed Up... Defaults Please!
           </Typography>
         </StyledMenuItem>
         <StyledMenuItem>

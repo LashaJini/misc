@@ -2,6 +2,7 @@ import React from "react";
 // WARNING: In order to this routing staff to work
 // you must import DEFAULT components
 import Home from "../Home/Home";
+import PageDoesNotExist from "../../components/PageDoesNotExist";
 
 import { projectNames } from "../Projects";
 
@@ -29,5 +30,10 @@ export const Routes: Array<ComponentRoutes> = [
     name: "Home",
     path: "/",
     component: Home,
+  },
+  {
+    name: "404",
+    path: "*",
+    component: PageDoesNotExist,
   },
 ];

@@ -12,7 +12,6 @@ import {
   Toolbar,
   Button,
   Tooltip,
-  Box,
 } from "@material-ui/core";
 import HomeIcon from "@material-ui/icons/Home";
 import { Routes, ComponentRoutes } from "./Routes";
@@ -49,8 +48,8 @@ const useStyles = makeStyles((theme: Theme) =>
 const Navigation = () => {
   const classes = useStyles();
   const toolTip = {
-    enterDelay: 300,
-    leaveDelay: 100,
+    enterDelay: 700,
+    leaveDelay: 0,
     TransitionComponent: Fade,
     TransitionProps: { timeout: 300 },
   };
@@ -59,10 +58,6 @@ const Navigation = () => {
   const handleEnableAppBar = (enabled: boolean) => {
     setEnableAppBar(enabled);
   };
-
-  /* React.useEffect(() => { */
-  /*   setEnableAppBar(true); */
-  /* }, []); */
 
   const appBarContext = {
     enabled: enableAppBar,
@@ -76,32 +71,36 @@ const Navigation = () => {
           <AppBar>
             <Toolbar>
               <div className={classes.nav}>
-                <Tooltip title="Home" aria-label="home" {...toolTip} arrow>
-                  <Button component={Link} to="/">
-                    <HomeIcon />
-                  </Button>
+                <Tooltip title="Home" aria-label="home" arrow {...toolTip}>
+                  <span>
+                    <Button component={Link} to="/">
+                      <HomeIcon />
+                    </Button>
+                  </span>
                 </Tooltip>
                 <Tooltip
                   title="Projects"
                   aria-label="projects"
-                  {...toolTip}
                   arrow
+                  {...toolTip}
                 >
                   <span>
                     <Projects />
                   </span>
                 </Tooltip>
               </div>
-              <Tooltip
-                title="Settings"
-                aria-label="settings"
-                {...toolTip}
-                arrow
-              >
-                <Box>
-                  <Settings />
-                </Box>
-              </Tooltip>
+              <div>
+                <Tooltip
+                  title="Settings"
+                  aria-label="settings"
+                  arrow
+                  {...toolTip}
+                >
+                  <span>
+                    <Settings />
+                  </span>
+                </Tooltip>
+              </div>
             </Toolbar>
           </AppBar>
         </HideOnScroll>
