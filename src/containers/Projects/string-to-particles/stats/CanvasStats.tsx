@@ -1,6 +1,8 @@
 import React from "react";
 import { useStyles } from "../StatsStyles";
 import {
+  CanvasParticleType,
+  RectangleParams,
   CanvasText,
   CanvasPx,
   CanvasParticleRadius,
@@ -15,6 +17,9 @@ import {
   setCanvasText,
   setCanvasTextSize,
   setParticleRadius,
+  setParticleWidth,
+  setParticleHeight,
+  setParticleType,
   setParticleColor,
   setCanvasScaleX,
   setCanvasScaleY,
@@ -22,15 +27,23 @@ import {
   setCanvasStepY,
 } from "../../../../store/stats/actions";
 import {
+  ICircularParticle,
+  IRectangularParticle,
   CanvasTextFieldType,
   CanvasStepType,
   /* CanvasFontType, */
   CanvasTextSizeType,
   ParticleColorType,
   ParticleRadiusType,
+  ParticleWidthType,
+  ParticleHeightType,
+  ParticleType,
   CanvasScaleType,
 } from "../../../../store/stats/types";
-import { defaultStats } from "../ParticleInterfaces";
+import {
+  defaultStats,
+  defaultRectangularParticle,
+} from "../ParticleInterfaces";
 
 const mapStateToProps = (state: RootState) => {
   return {
@@ -50,6 +63,12 @@ const mapDispatchToProps = (dispatch: any) => {
     onParticleRadiusChange: (radius: ParticleRadiusType) => {
       dispatch(setParticleRadius(radius));
     },
+    onParticleWidthChange: (width: ParticleWidthType) => {
+      dispatch(setParticleWidth(width));
+    },
+    onParticleHeightChange: (height: ParticleHeightType) => {
+      dispatch(setParticleHeight(height));
+    },
     onParticleColorChange: (color: ParticleColorType) => {
       dispatch(setParticleColor(color));
     },
@@ -65,6 +84,9 @@ const mapDispatchToProps = (dispatch: any) => {
     onCanvasStepYChange: (stepY: CanvasStepType) => {
       dispatch(setCanvasStepY(stepY));
     },
+    onParticleTypeChange: (type: ParticleType) => {
+      dispatch(setParticleType(type));
+    },
   };
 };
 
@@ -78,8 +100,8 @@ const CanvasStats = (props: Props) => {
   const {
     text,
     px,
-    particleRadius,
-    particleColor,
+    particleType,
+    particleT,
     /* font, */
     scale,
     step,
@@ -89,10 +111,13 @@ const CanvasStats = (props: Props) => {
     onCanvasPxChange,
     onParticleColorChange,
     onParticleRadiusChange,
+    onParticleWidthChange,
+    onParticleHeightChange,
     onCanvasStepYChange,
     onCanvasStepXChange,
     onCanvasScaleYChange,
     onCanvasScaleXChange,
+    onParticleTypeChange,
   } = props;
 
   const handleCanvasTextChange = (event: Event) => {
@@ -141,6 +166,21 @@ const CanvasStats = (props: Props) => {
     onParticleRadiusChange(parseFloat(event.target.value));
   };
 
+  const handleParticleWidthChange = (event: Event) => {
+    onParticleWidthChange(parseFloat(event.target.value));
+  };
+
+  const handleParticleHeightChange = (event: Event) => {
+    onParticleHeightChange(parseFloat(event.target.value));
+  };
+
+  const handleParticleTypeChange = (
+    event: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    /* console.log(event.target.value); */
+    onParticleTypeChange(event.target.value as ParticleType);
+  };
+
   return (
     <Grid container direction="column" alignItems="flex-start" spacing={2}>
       <Grid item container spacing={0} alignItems="flex-end" xs={12}>
@@ -158,16 +198,8 @@ const CanvasStats = (props: Props) => {
       </Grid>
       <Grid item container spacing={0} alignItems="flex-end" xs={12}>
         <Grid item xs={12}>
-          <CanvasParticleRadius
-            particleRadius={particleRadius}
-            handleParticleRadiusChange={handleParticleRadiusChange}
-          />
-        </Grid>
-      </Grid>
-      <Grid item container spacing={0} alignItems="flex-end" xs={12}>
-        <Grid item xs={12}>
           <CanvasParticleColor
-            particleColor={particleColor}
+            particleColor={particleT.color}
             handleParticleColorChange={handleParticleColorChange}
           />
         </Grid>
@@ -210,7 +242,7 @@ const CanvasStats = (props: Props) => {
           <Grid item xs={2} lg={2}>
             <CanvasStepInput
               id="stepX"
-              inputClass={classes.step}
+              inputClass={classes.input}
               inputProps={{ min: 1, max: 10 }}
               value={step[0]}
               startAdornment="X:"
@@ -221,7 +253,7 @@ const CanvasStats = (props: Props) => {
           <Grid item xs={2} lg={2}>
             <CanvasStepInput
               id="stepY"
-              inputClass={classes.step}
+              inputClass={classes.input}
               inputProps={{ min: 1, max: 10 }}
               value={step[1]}
               startAdornment="Y:"
@@ -229,6 +261,48 @@ const CanvasStats = (props: Props) => {
               {...{ className: classes.formControl }}
             />
           </Grid>
+        </Grid>
+      </Grid>
+      <Grid item container spacing={0} xs={12} direction="column">
+        <Grid>
+          <CanvasParticleType
+            particleType={particleType}
+            handleChange={handleParticleTypeChange}
+            {...{ className: classes.formControl }}
+          />
+        </Grid>
+        <Grid>
+          {particleType === "circle" ? (
+            <CanvasParticleRadius
+              particleRadius={(particleT as ICircularParticle).radius}
+              handleParticleRadiusChange={handleParticleRadiusChange}
+            />
+          ) : (
+            <Grid item container spacing={10}>
+              <Grid item xs={2} lg={2}>
+                <RectangleParams
+                  inputClass={classes.input}
+                  id="particleTW"
+                  label="width"
+                  defaultValue={defaultRectangularParticle.w}
+                  value={(particleT as IRectangularParticle).w}
+                  handleChange={handleParticleWidthChange}
+                  {...{ className: classes.formControl }}
+                />
+              </Grid>
+              <Grid item xs={2} lg={2}>
+                <RectangleParams
+                  inputClass={classes.input}
+                  id="particleTH"
+                  label="height"
+                  defaultValue={defaultRectangularParticle.h}
+                  value={(particleT as IRectangularParticle).h}
+                  handleChange={handleParticleHeightChange}
+                  {...{ className: classes.formControl }}
+                />
+              </Grid>
+            </Grid>
+          )}
         </Grid>
       </Grid>
     </Grid>

@@ -5,6 +5,8 @@ import CanvasParticleColor from "./CanvasParticleColor";
 import CanvasScaleInput from "./CanvasScaleInput";
 import CanvasStepInput from "./CanvasStepInput";
 import CanvasStats from "./CanvasStats";
+import CanvasParticleType from "./CanvasParticleType";
+import RectangleParams from "./RectangleParams";
 
 export {
   CanvasText,
@@ -14,4 +16,6 @@ export {
   CanvasScaleInput,
   CanvasStepInput,
   CanvasStats,
+  CanvasParticleType,
+  RectangleParams,
 };

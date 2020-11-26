@@ -7,7 +7,7 @@ interface Props {
 }
 
 const CanvasParticleRadius = (props: Props) => {
-  const { particleRadius, handleParticleRadiusChange } = props;
+  const { particleRadius, handleParticleRadiusChange, ...other } = props;
 
   return (
     <TextField
@@ -17,6 +17,7 @@ const CanvasParticleRadius = (props: Props) => {
       type="number"
       onChange={handleParticleRadiusChange}
       fullWidth
+      {...other}
     />
   );
 };

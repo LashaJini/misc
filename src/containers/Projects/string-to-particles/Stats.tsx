@@ -17,7 +17,11 @@ import { connect, ConnectedProps } from "react-redux";
 import { RootState } from "../../../store";
 
 import { resetStats } from "../../../store/stats/actions";
-import { IStats } from "../../../store/stats/types";
+import {
+  IStats,
+  ICircularParticle,
+  IRectangularParticle,
+} from "../../../store/stats/types";
 
 const mapStateToProps = (state: RootState) => {
   return {
@@ -83,10 +87,16 @@ const Stats = (props: IProps) => {
       ...defaultStats,
       text: stats.text,
       px: stats.px,
-      particleRadius: stats.particleRadius,
-      particleColor: stats.particleColor,
+      particleType: stats.particleType,
       scale: stats.scale,
       step: stats.step,
+      particleT: {
+        ...stats.particleT,
+        radius: (stats.particleT as ICircularParticle).radius,
+        w: (stats.particleT as IRectangularParticle).w,
+        h: (stats.particleT as IRectangularParticle).h,
+        color: stats.particleT.color,
+      },
     };
     /* console.log("in update stats", stats); */
     handleStatsChange(res);
@@ -125,11 +135,8 @@ const Stats = (props: IProps) => {
           <CanvasStats />
         </StyledMenuItem>
         <br />
-        <StyledMenuItem>
-          <Typography
-            className={classes.messedUp}
-            onClick={resetToDefaultStats}
-          >
+        <StyledMenuItem disableRipple={false} onClick={resetToDefaultStats}>
+          <Typography className={classes.messedUp}>
             Hehe, I Messed Up... Defaults Please!
           </Typography>
         </StyledMenuItem>

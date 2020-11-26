@@ -32,7 +32,7 @@ export const useStyles = makeStyles((theme: Theme) =>
     formControl: {
       /* width: "25%", */
     },
-    step: {
+    input: {
       width: "4em",
     },
   })

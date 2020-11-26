@@ -2,8 +2,20 @@ import React from "react";
 /* import "./Particles.css"; */
 import Box from "@material-ui/core/Box";
 import { IStats, CanvasStyle, getPixelRatio } from "./ParticleInterfaces";
-import { defaultStats } from "./ParticleInterfaces";
 import { useWindowSize } from "../../../hooks/useWindowSize";
+import {
+  defaultParticle,
+  defaultCircularParticle,
+  defaultRectangularParticle,
+  Particle,
+  CircularParticle,
+  RectangularParticle,
+} from "./ParticleClass";
+import {
+  IParticle,
+  ICircularParticle,
+  IRectangularParticle,
+} from "./ParticleInterfaces";
 
 type MouseType = {
   x: number | null;
@@ -41,55 +53,23 @@ interface Canvas {
   textStartY: number;
 }
 
-interface Particle {
-  radius: number;
-  initialX: number;
-  initialY: number;
-  x: number;
-  y: number;
-  val: number;
-  color: string;
-}
-
-const defaultParticle: Particle = {
-  radius: 4.5,
-  initialX: 0,
-  initialY: 0,
-  x: 0,
-  y: 0,
-  val: 0,
-  color: defaultStats.particleColor,
-};
-
-interface ParticleStats {
-  particleRadius: number;
-  particleColor: string;
-}
-
-const defaultParticleStats: ParticleStats = {
-  particleRadius: defaultParticle.radius,
-  particleColor: defaultParticle.color,
-};
+type ParticleStats = IParticle | ICircularParticle | IRectangularParticle;
 
 interface Props {
   stats: IStats;
 }
 
 const ParticlesLogic = (props: Props) => {
-  const classes = CanvasStyle;
-  const canvasRef: any = React.useRef(null);
-  const [w, h] = useWindowSize();
   const {
     text,
     px,
     font,
-    particleRadius,
-    particleColor,
+    particleT,
+    /* particleColor, */
+    particleType,
     scale,
     step,
   } = props.stats;
-  /* const [canvasSize, setCanvasSize] = React.useState<[number, number]>([0, 0]); */
-  const ctxFont = `${px}px ${font}`;
   const [CA, setCA] = React.useState<Canvas>({
     baseHeight: 0,
     baseWidth: 0,
@@ -107,8 +87,12 @@ const ParticlesLogic = (props: Props) => {
     textStartX: 0,
     textStartY: 10,
   });
+  const classes = CanvasStyle;
+  const canvasRef: any = React.useRef(null);
+  const [ww, wh] = useWindowSize();
+  const ctxFont = `${px}px ${font}`;
   const [particleStats, setParticleStats] = React.useState<ParticleStats>(
-    defaultParticleStats
+    defaultParticle
   );
 
   const init: any = React.useRef(() => {});
@@ -122,10 +106,10 @@ const ParticlesLogic = (props: Props) => {
 
       const ratio = getPixelRatio(ctx);
 
-      canvas.width = w * ratio;
-      canvas.height = h * ratio;
-      canvas.style.width = `${w || canvas.width}px`;
-      canvas.style.height = `${h || canvas.height}px`;
+      canvas.width = ww * ratio;
+      canvas.height = wh * ratio;
+      canvas.style.width = `${ww || canvas.width}px`;
+      canvas.style.height = `${wh || canvas.height}px`;
 
       ctx.fillStyle = classes.ctx.backgroundColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -140,7 +124,7 @@ const ParticlesLogic = (props: Props) => {
     });
     doit();
     return () => window.removeEventListener("mousemove", doit);
-  }, [w, h, classes, props.stats, ctxFont, init]);
+  }, [ww, wh, classes, props.stats, ctxFont, init]);
 
   init.current = (ctx: any) => {
     const textStats: any = ctx.measureText(text);
@@ -172,15 +156,46 @@ const ParticlesLogic = (props: Props) => {
     };
 
     const currParticleRadius =
-      Number(particleRadius) > 0
-        ? Number(particleRadius)
-        : defaultParticleStats.particleRadius;
-    const currParticleColor = particleColor;
+      Number((particleT as ICircularParticle).radius) > 0
+        ? Number((particleT as ICircularParticle).radius)
+        : defaultCircularParticle.radius;
+    const currParticleColor = particleT.color;
+    const currParticleType = particleType;
+    const currParticleW =
+      Number((particleT as IRectangularParticle).w) > 0
+        ? Number((particleT as IRectangularParticle).w)
+        : defaultRectangularParticle.w;
+    const currParticleH =
+      Number((particleT as IRectangularParticle).h) > 0
+        ? Number((particleT as IRectangularParticle).h)
+        : defaultRectangularParticle.h;
 
-    const currParticleStats = {
+    let tempParticlesStats: ParticleStats = {
+      ...defaultParticle,
+      color: currParticleColor,
+      type: currParticleType,
+    };
+    switch (currParticleType) {
+      case "rect": {
+        tempParticlesStats = {
+          ...tempParticlesStats,
+          w: currParticleW,
+          h: currParticleH,
+        };
+        break;
+      }
+      default: {
+        tempParticlesStats = {
+          ...tempParticlesStats,
+          radius: currParticleRadius,
+        };
+        break;
+      }
+    }
+
+    const currParticleStats: ParticleStats = {
       ...particleStats,
-      particleRadius: currParticleRadius,
-      particleColor: currParticleColor,
+      ...tempParticlesStats,
     };
 
     ctx.fillStyle = "white";
@@ -233,7 +248,23 @@ const ParticlesLogic = (props: Props) => {
       return y * (width * 4) + x * 4 + rgba;
     };
 
-    let tempParticles: Array<Particle> = [];
+    /* let tempParticles: Array<Particle> = []; */
+    let p;
+    switch (particleStats.type) {
+      case "rect": {
+        p = new RectangularParticle(particleStats as IRectangularParticle);
+        break;
+      }
+      case "circle": {
+        p = new CircularParticle(particleStats as ICircularParticle);
+        break;
+      }
+      default: {
+        p = new Particle(particleStats as IParticle);
+        break;
+      }
+    }
+
     for (let i = CA.textStartX; i < imageData.width; i += CA.stepX) {
       // TODO: 15
       for (let j = CA.textStartY - 15; j < imageData.height; j += CA.stepY) {
@@ -242,32 +273,22 @@ const ParticlesLogic = (props: Props) => {
         if (val > CA.opacity) {
           const x = (i - CA.textStartX) * CA.scaleXby + CA.distanceFromTopX;
           const y = (j - CA.textStartY) * CA.scaleYby + CA.distanceFromTopY;
-          const particle: Particle = {
-            ...defaultParticle,
+          const particle: ParticleStats = {
+            ...p.getParticle(),
             initialX: x,
             initialY: y,
             x,
             y,
             val: val,
-            radius: particleStats.particleRadius,
-            color: particleStats.particleColor,
           };
-          drawCircle(ctx, particle);
-          tempParticles.push(particle);
+          p.setParticle(particle);
+          p.draw(ctx);
+          /* tempParticles.push(p); */
         }
       }
     }
     /* console.log(imageData.data.length, imageData.width, imageData.height); */
     /* console.log(tempParticles.length); */
-  };
-
-  const drawCircle = (ctx: any, particle: Particle) => {
-    ctx.fillStyle = particle.color;
-    ctx.beginPath();
-
-    ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.fill();
   };
 
   return (

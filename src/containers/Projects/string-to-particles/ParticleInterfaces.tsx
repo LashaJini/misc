@@ -1,4 +1,9 @@
-import { initialStatsState } from "../../../store/stats/reducers";
+import {
+  initialStatsState,
+  defaultParticle,
+  defaultRectangularParticle,
+  defaultCircularParticle,
+} from "../../../store/stats/reducers";
 
 const CanvasStyle = {
   ctx: {
@@ -19,6 +24,22 @@ const getPixelRatio = (context: any) => {
   return (window.devicePixelRatio || 1) / backingStore;
 };
 
-export { initialStatsState as defaultStats, CanvasStyle, getPixelRatio };
+export {
+  initialStatsState as defaultStats,
+  CanvasStyle,
+  getPixelRatio,
+  defaultParticle,
+  defaultCircularParticle,
+  defaultRectangularParticle,
+};
 
-export type { CanvasStepType, IStats } from "../../../store/stats/types";
+export type {
+  CanvasStepType,
+  IStats,
+  ParticleType,
+  CircularParticleType,
+  RectangularParticleType,
+  IParticle,
+  ICircularParticle,
+  IRectangularParticle,
+} from "../../../store/stats/types";

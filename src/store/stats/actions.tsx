@@ -1,8 +1,11 @@
 import {
   RESET_STATS_TO_DEFAULTS,
+  CHANGE_PARTICLE_TYPE,
   CHANGE_CANVAS_TEXTFIELD,
   CHANGE_CANVAS_TEXT_SIZE,
   CHANGE_PARTICLE_RADIUS,
+  CHANGE_PARTICLE_WIDTH,
+  CHANGE_PARTICLE_HEIGHT,
   CHANGE_PARTICLE_COLOR,
   CHANGE_SCALE_BY_X,
   CHANGE_SCALE_BY_Y,
@@ -13,9 +16,12 @@ import {
   CanvasTextFieldType,
   CanvasStepType,
   CanvasTextSizeType,
+  ParticleType,
   /* CanvasFontType, */
   CanvasScaleType,
   ParticleRadiusType,
+  ParticleWidthType,
+  ParticleHeightType,
   ParticleColorType,
 } from "./types";
 
@@ -50,6 +56,24 @@ export const setParticleRadius = (
   return {
     type: CHANGE_PARTICLE_RADIUS,
     payload: newRadius,
+  };
+};
+
+export const setParticleWidth = (
+  newWidth: ParticleWidthType
+): StatsActionType => {
+  return {
+    type: CHANGE_PARTICLE_WIDTH,
+    payload: newWidth,
+  };
+};
+
+export const setParticleHeight = (
+  newHeight: ParticleHeightType
+): StatsActionType => {
+  return {
+    type: CHANGE_PARTICLE_HEIGHT,
+    payload: newHeight,
   };
 };
 
@@ -91,5 +115,12 @@ export const setCanvasStepY = (newStepY: CanvasStepType): StatsActionType => {
   return {
     type: CHANGE_STEP_ON_Y,
     payload: newStepY,
+  };
+};
+
+export const setParticleType = (newType: ParticleType): StatsActionType => {
+  return {
+    type: CHANGE_PARTICLE_TYPE,
+    payload: newType,
   };
 };
