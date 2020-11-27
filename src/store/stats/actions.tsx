@@ -1,12 +1,16 @@
 import {
   RESET_STATS_TO_DEFAULTS,
   CHANGE_PARTICLE_TYPE,
+  CHANGE_PARTICLE_MOVEMENT,
   CHANGE_CANVAS_TEXTFIELD,
   CHANGE_CANVAS_TEXT_SIZE,
   CHANGE_PARTICLE_RADIUS,
   CHANGE_PARTICLE_WIDTH,
   CHANGE_PARTICLE_HEIGHT,
   CHANGE_PARTICLE_COLOR,
+  CHANGE_PARTICLE_A,
+  CHANGE_PARTICLE_B,
+  CHANGE_PARTICLE_C,
   CHANGE_SCALE_BY_X,
   CHANGE_SCALE_BY_Y,
   CHANGE_STEP_ON_X,
@@ -23,6 +27,10 @@ import {
   ParticleWidthType,
   ParticleHeightType,
   ParticleColorType,
+  ParticleAType,
+  ParticleBType,
+  ParticleCType,
+  IParticleMovement,
 } from "./types";
 
 export const resetStats = (defaultStats: IStats): StatsActionType => {
@@ -77,6 +85,27 @@ export const setParticleHeight = (
   };
 };
 
+export const setParticleA = (newA: ParticleAType): StatsActionType => {
+  return {
+    type: CHANGE_PARTICLE_A,
+    payload: newA,
+  };
+};
+
+export const setParticleB = (newB: ParticleBType): StatsActionType => {
+  return {
+    type: CHANGE_PARTICLE_B,
+    payload: newB,
+  };
+};
+
+export const setParticleC = (newC: ParticleCType): StatsActionType => {
+  return {
+    type: CHANGE_PARTICLE_C,
+    payload: newC,
+  };
+};
+
 export const setParticleColor = (
   newColor: ParticleColorType
 ): StatsActionType => {
@@ -122,5 +151,14 @@ export const setParticleType = (newType: ParticleType): StatsActionType => {
   return {
     type: CHANGE_PARTICLE_TYPE,
     payload: newType,
+  };
+};
+
+export const setParticleMovementType = (
+  newMove: IParticleMovement
+): StatsActionType => {
+  return {
+    type: CHANGE_PARTICLE_MOVEMENT,
+    payload: newMove,
   };
 };

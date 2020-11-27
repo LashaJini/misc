@@ -7,6 +7,8 @@ import CanvasStepInput from "./CanvasStepInput";
 import CanvasStats from "./CanvasStats";
 import CanvasParticleType from "./CanvasParticleType";
 import RectangleParams from "./RectangleParams";
+import TriangleParams from "./TriangleParams";
+import ParticleAdditionalParams from "./ParticleAdditionalParams";
 
 export {
   CanvasText,
@@ -18,4 +20,6 @@ export {
   CanvasStats,
   CanvasParticleType,
   RectangleParams,
+  TriangleParams,
+  ParticleAdditionalParams,
 };

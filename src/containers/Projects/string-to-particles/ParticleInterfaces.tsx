@@ -3,6 +3,7 @@ import {
   defaultParticle,
   defaultRectangularParticle,
   defaultCircularParticle,
+  defaultTriangularParticle,
 } from "../../../store/stats/reducers";
 
 const CanvasStyle = {
@@ -31,6 +32,7 @@ export {
   defaultParticle,
   defaultCircularParticle,
   defaultRectangularParticle,
+  defaultTriangularParticle,
 };
 
 export type {
@@ -39,7 +41,9 @@ export type {
   ParticleType,
   CircularParticleType,
   RectangularParticleType,
+  TriangularParticleType,
   IParticle,
   ICircularParticle,
   IRectangularParticle,
+  ITriangularParticle,
 } from "../../../store/stats/types";

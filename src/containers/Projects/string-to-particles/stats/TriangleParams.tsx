@@ -4,17 +4,15 @@ import { FormControl, Input, InputLabel } from "@material-ui/core";
 interface Props {
   id: string;
   label: string;
-  /* value: number | undefined; */
   defaultValue: number | undefined;
   handleChange: (event: any) => void;
   inputClass: string;
 }
 
-const RectangleParams = (props: Props) => {
+const TriangleParams = (props: Props) => {
   const {
     id,
     label,
-    /* value, */
     defaultValue,
     handleChange,
     inputClass,
@@ -27,7 +25,6 @@ const RectangleParams = (props: Props) => {
       <Input
         id={id}
         type="number"
-        /* value={value} */
         defaultValue={defaultValue}
         className={inputClass}
         onChange={handleChange}
@@ -36,4 +33,4 @@ const RectangleParams = (props: Props) => {
   );
 };
 
-export default RectangleParams;
+export default TriangleParams;

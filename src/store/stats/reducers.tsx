@@ -1,8 +1,12 @@
 import {
   RESET_STATS_TO_DEFAULTS,
   CHANGE_CANVAS_TEXTFIELD,
+  CHANGE_PARTICLE_MOVEMENT,
   CHANGE_PARTICLE_WIDTH,
   CHANGE_PARTICLE_HEIGHT,
+  CHANGE_PARTICLE_A,
+  CHANGE_PARTICLE_B,
+  CHANGE_PARTICLE_C,
   CHANGE_CANVAS_TEXT_SIZE,
   CHANGE_PARTICLE_RADIUS,
   CHANGE_PARTICLE_COLOR,
@@ -14,8 +18,10 @@ import {
   StatsActionType,
   IStats,
   IParticle,
+  IParticleMovement,
   ICircularParticle,
   IRectangularParticle,
+  ITriangularParticle,
 } from "./types";
 
 const textArray: Array<string> = ["😈", "22ci❤️", "😡", "AC⚡DC"];
@@ -40,6 +46,11 @@ const getRandomStats = () => {
 };
 
 const randomStats = getRandomStats();
+export const defaultParticleMovement: IParticleMovement = {
+  canMove: false,
+  direction: undefined,
+};
+
 export const defaultParticle: IParticle = {
   type: "circle",
   initialX: 0,
@@ -48,6 +59,7 @@ export const defaultParticle: IParticle = {
   y: 0,
   val: 0,
   color: randomStats.color,
+  movementType: defaultParticleMovement,
   filled: true,
 };
 export const defaultCircularParticle: ICircularParticle = {
@@ -58,6 +70,12 @@ export const defaultRectangularParticle: IRectangularParticle = {
   ...defaultParticle,
   w: 5,
   h: 6,
+};
+export const defaultTriangularParticle: ITriangularParticle = {
+  ...defaultParticle,
+  a: 5,
+  b: 5,
+  c: 5,
 };
 
 export const initialStatsState: IStats = {
@@ -93,6 +111,18 @@ export const statsReducer = (
       return Object.assign({}, state, {
         particleT: { ...state.particleT, h: action.payload },
       });
+    case CHANGE_PARTICLE_A:
+      return Object.assign({}, state, {
+        particleT: { ...state.particleT, a: action.payload },
+      });
+    case CHANGE_PARTICLE_B:
+      return Object.assign({}, state, {
+        particleT: { ...state.particleT, b: action.payload },
+      });
+    case CHANGE_PARTICLE_C:
+      return Object.assign({}, state, {
+        particleT: { ...state.particleT, c: action.payload },
+      });
     case CHANGE_PARTICLE_COLOR:
       return Object.assign({}, state, {
         particleT: { ...state.particleT, color: action.payload },
@@ -116,6 +146,10 @@ export const statsReducer = (
     case CHANGE_PARTICLE_TYPE:
       return Object.assign({}, state, {
         particleType: action.payload,
+      });
+    case CHANGE_PARTICLE_MOVEMENT:
+      return Object.assign({}, state, {
+        particleT: { ...state.particleT, movementType: action.payload },
       });
     default:
       return state;

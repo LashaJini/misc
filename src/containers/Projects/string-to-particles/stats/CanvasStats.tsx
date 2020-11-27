@@ -2,15 +2,20 @@ import React from "react";
 import { useStyles } from "../StatsStyles";
 import {
   CanvasParticleType,
-  RectangleParams,
   CanvasText,
   CanvasPx,
-  CanvasParticleRadius,
   CanvasParticleColor,
   CanvasScaleInput,
   CanvasStepInput,
+  ParticleAdditionalParams,
 } from "./";
-import { Typography, Grid } from "@material-ui/core";
+import {
+  Container,
+  FormControlLabel,
+  Switch,
+  Typography,
+  Grid,
+} from "@material-ui/core";
 import { connect, ConnectedProps } from "react-redux";
 import { RootState } from "../../../../store";
 import {
@@ -19,6 +24,10 @@ import {
   setParticleRadius,
   setParticleWidth,
   setParticleHeight,
+  setParticleMovementType,
+  setParticleA,
+  setParticleB,
+  setParticleC,
   setParticleType,
   setParticleColor,
   setCanvasScaleX,
@@ -27,8 +36,6 @@ import {
   setCanvasStepY,
 } from "../../../../store/stats/actions";
 import {
-  ICircularParticle,
-  IRectangularParticle,
   CanvasTextFieldType,
   CanvasStepType,
   /* CanvasFontType, */
@@ -37,13 +44,14 @@ import {
   ParticleRadiusType,
   ParticleWidthType,
   ParticleHeightType,
+  IParticleMovement,
+  ParticleAType,
+  ParticleBType,
+  ParticleCType,
   ParticleType,
   CanvasScaleType,
 } from "../../../../store/stats/types";
-import {
-  defaultStats,
-  defaultRectangularParticle,
-} from "../ParticleInterfaces";
+import { defaultStats } from "../ParticleInterfaces";
 
 const mapStateToProps = (state: RootState) => {
   return {
@@ -69,6 +77,15 @@ const mapDispatchToProps = (dispatch: any) => {
     onParticleHeightChange: (height: ParticleHeightType) => {
       dispatch(setParticleHeight(height));
     },
+    onParticleAChange: (a: ParticleAType) => {
+      dispatch(setParticleA(a));
+    },
+    onParticleBChange: (b: ParticleBType) => {
+      dispatch(setParticleB(b));
+    },
+    onParticleCChange: (c: ParticleCType) => {
+      dispatch(setParticleC(c));
+    },
     onParticleColorChange: (color: ParticleColorType) => {
       dispatch(setParticleColor(color));
     },
@@ -86,6 +103,9 @@ const mapDispatchToProps = (dispatch: any) => {
     },
     onParticleTypeChange: (type: ParticleType) => {
       dispatch(setParticleType(type));
+    },
+    onParticleMovementTypeChange: (movementType: IParticleMovement) => {
+      dispatch(setParticleMovementType(movementType));
     },
   };
 };
@@ -113,11 +133,15 @@ const CanvasStats = (props: Props) => {
     onParticleRadiusChange,
     onParticleWidthChange,
     onParticleHeightChange,
+    onParticleAChange,
+    onParticleBChange,
+    onParticleCChange,
     onCanvasStepYChange,
     onCanvasStepXChange,
     onCanvasScaleYChange,
     onCanvasScaleXChange,
     onParticleTypeChange,
+    onParticleMovementTypeChange,
   } = props;
 
   const handleCanvasTextChange = (event: Event) => {
@@ -174,11 +198,32 @@ const CanvasStats = (props: Props) => {
     onParticleHeightChange(parseFloat(event.target.value));
   };
 
+  const handleParticleAChange = (event: Event) => {
+    onParticleAChange(parseFloat(event.target.value));
+  };
+
+  const handleParticleBChange = (event: Event) => {
+    onParticleBChange(parseFloat(event.target.value));
+  };
+
+  const handleParticleCChange = (event: Event) => {
+    onParticleCChange(parseFloat(event.target.value));
+  };
+
   const handleParticleTypeChange = (
     event: React.ChangeEvent<{ value: unknown }>
   ) => {
     /* console.log(event.target.value); */
     onParticleTypeChange(event.target.value as ParticleType);
+  };
+
+  const toggleParticleCanMove = () => {
+    const canMove = !particleT.movementType.canMove;
+    const res: IParticleMovement = {
+      canMove,
+      direction: undefined,
+    };
+    onParticleMovementTypeChange(res);
   };
 
   return (
@@ -272,38 +317,26 @@ const CanvasStats = (props: Props) => {
           />
         </Grid>
         <Grid>
-          {particleType === "circle" ? (
-            <CanvasParticleRadius
-              particleRadius={(particleT as ICircularParticle).radius}
-              handleParticleRadiusChange={handleParticleRadiusChange}
-            />
-          ) : (
-            <Grid item container spacing={10}>
-              <Grid item xs={2} lg={2}>
-                <RectangleParams
-                  inputClass={classes.input}
-                  id="particleTW"
-                  label="width"
-                  defaultValue={defaultRectangularParticle.w}
-                  value={(particleT as IRectangularParticle).w}
-                  handleChange={handleParticleWidthChange}
-                  {...{ className: classes.formControl }}
-                />
-              </Grid>
-              <Grid item xs={2} lg={2}>
-                <RectangleParams
-                  inputClass={classes.input}
-                  id="particleTH"
-                  label="height"
-                  defaultValue={defaultRectangularParticle.h}
-                  value={(particleT as IRectangularParticle).h}
-                  handleChange={handleParticleHeightChange}
-                  {...{ className: classes.formControl }}
-                />
-              </Grid>
-            </Grid>
-          )}
+          <ParticleAdditionalParams
+            particleT={particleT}
+            particleType={particleType}
+            handleParticleRadiusChange={handleParticleRadiusChange}
+            handleParticleWidthChange={handleParticleWidthChange}
+            handleParticleHeightChange={handleParticleHeightChange}
+            handleParticleAChange={handleParticleAChange}
+            handleParticleBChange={handleParticleBChange}
+            handleParticleCChange={handleParticleCChange}
+          />
         </Grid>
+      </Grid>
+      <Grid item container spacing={0} xs={12} direction="column">
+        <Container>
+          <FormControlLabel
+            checked={particleT.movementType.canMove}
+            label="Particles Can Move"
+            control={<Switch onChange={toggleParticleCanMove} />}
+          />
+        </Container>
       </Grid>
     </Grid>
   );

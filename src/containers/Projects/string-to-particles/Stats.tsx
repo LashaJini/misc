@@ -21,6 +21,7 @@ import {
   IStats,
   ICircularParticle,
   IRectangularParticle,
+  ITriangularParticle,
 } from "../../../store/stats/types";
 
 const mapStateToProps = (state: RootState) => {
@@ -95,6 +96,10 @@ const Stats = (props: IProps) => {
         radius: (stats.particleT as ICircularParticle).radius,
         w: (stats.particleT as IRectangularParticle).w,
         h: (stats.particleT as IRectangularParticle).h,
+        a: (stats.particleT as ITriangularParticle).a,
+        b: (stats.particleT as ITriangularParticle).b,
+        c: (stats.particleT as ITriangularParticle).c,
+        movementType: { ...stats.particleT.movementType },
         color: stats.particleT.color,
       },
     };

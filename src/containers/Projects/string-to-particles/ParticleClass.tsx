@@ -2,19 +2,34 @@ import {
   defaultParticle,
   defaultCircularParticle,
   defaultRectangularParticle,
+  defaultTriangularParticle,
   IParticle,
   ICircularParticle,
   IRectangularParticle,
+  ITriangularParticle,
 } from "./ParticleInterfaces";
 
 interface Draw {
   draw(ctx: any): void;
 }
+export type MouseType = {
+  x: number;
+  y: number;
+  radius: number;
+};
 
 export class Particle implements Draw {
   particle: IParticle;
-  constructor(particle: IParticle = defaultParticle) {
+  mouse: MouseType;
+  ctx: any;
+  constructor(
+    ctx: any,
+    mouse: MouseType,
+    particle: IParticle = defaultParticle
+  ) {
+    this.ctx = ctx;
     this.particle = particle;
+    this.mouse = mouse;
   }
 
   setParticle(particle: IParticle) {
@@ -30,9 +45,17 @@ export class Particle implements Draw {
 
 export class CircularParticle extends Particle {
   particle: ICircularParticle;
-  constructor(particle: ICircularParticle = defaultCircularParticle) {
-    super(particle);
+  mouse: MouseType;
+  ctx: any;
+  constructor(
+    ctx: any,
+    mouse: MouseType,
+    particle: ICircularParticle = defaultCircularParticle
+  ) {
+    super(ctx, mouse, particle);
+    this.ctx = ctx;
     this.particle = particle;
+    this.mouse = mouse;
   }
 
   draw(ctx: any): void {
@@ -61,9 +84,17 @@ export class CircularParticle extends Particle {
 
 export class RectangularParticle extends Particle {
   particle: IRectangularParticle;
-  constructor(particle: IRectangularParticle = defaultRectangularParticle) {
-    super(particle);
+  mouse: MouseType;
+  ctx: any;
+  constructor(
+    ctx: any,
+    mouse: MouseType,
+    particle: IRectangularParticle = defaultRectangularParticle
+  ) {
+    super(ctx, mouse, particle);
+    this.ctx = ctx;
     this.particle = particle;
+    this.mouse = mouse;
   }
 
   draw(ctx: any): void {
@@ -89,4 +120,44 @@ export class RectangularParticle extends Particle {
   }
 }
 
-export { defaultParticle, defaultRectangularParticle, defaultCircularParticle };
+export class TriangularParticle extends Particle {
+  particle: ITriangularParticle;
+  mouse: MouseType;
+  ctx: any;
+  constructor(
+    ctx: any,
+    mouse: MouseType,
+    particle: ITriangularParticle = defaultTriangularParticle
+  ) {
+    super(ctx, mouse, particle);
+    this.ctx = ctx;
+    this.particle = particle;
+    this.mouse = mouse;
+  }
+
+  draw(ctx: any): void {
+    ctx.fillStyle = this.particle.color;
+    ctx.beginPath();
+    ctx.moveTo(this.particle.x, this.particle.y);
+    ctx.lineTo(this.particle.a, this.particle.b);
+    ctx.lineTo(this.particle.a, this.particle.c);
+    /* ctx.closePath(); */
+    ctx.fill();
+  }
+
+  setParticle(particle: ITriangularParticle) {
+    /* super.setParticle(particle); */
+    this.particle = particle;
+  }
+
+  getParticle(): ITriangularParticle {
+    return this.particle;
+  }
+}
+
+export {
+  defaultParticle,
+  defaultRectangularParticle,
+  defaultCircularParticle,
+  defaultTriangularParticle,
+};
