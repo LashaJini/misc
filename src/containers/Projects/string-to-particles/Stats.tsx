@@ -140,7 +140,11 @@ const Stats = (props: IProps) => {
           <CanvasStats />
         </StyledMenuItem>
         <br />
-        <StyledMenuItem disableRipple={false} onClick={resetToDefaultStats}>
+        <StyledMenuItem
+          disableRipple={false}
+          onClick={resetToDefaultStats}
+          style={{ cursor: "pointer" }}
+        >
           <Typography className={classes.messedUp}>
             Hehe, I Messed Up... Defaults Please!
           </Typography>

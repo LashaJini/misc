@@ -13,7 +13,7 @@ const CanvasParticleRadius = (props: Props) => {
     <TextField
       id="particleRadius"
       label="Particle Radius"
-      value={particleRadius}
+      defaultValue={particleRadius}
       type="number"
       onChange={handleParticleRadiusChange}
       fullWidth

@@ -95,6 +95,11 @@ const ParticlesLogic = (props: Props) => {
   const [particleStats, setParticleStats] = React.useState<ParticleStats>(
     defaultParticle
   );
+  /* const [globalCanMove, setGlobalCanMove] = React.useState(false); */
+  /* const [anim, setAnim] = React.useState<number>(0); */
+  const anim = React.useRef(1);
+  const ratio = React.useRef<number>(1);
+  /* const [helper, setHelper] = React.useState<any>(""); */
 
   const init: any = React.useRef(() => {});
 
@@ -105,10 +110,11 @@ const ParticlesLogic = (props: Props) => {
       canvas.height = window.innerHeight;
       const ctx = canvas.getContext("2d");
 
-      const ratio = getPixelRatio(ctx);
+      /* const tempRatio = getPixelRatio(ctx); */
+      ratio.current = getPixelRatio(ctx);
 
-      canvas.width = ww * ratio;
-      canvas.height = wh * ratio;
+      canvas.width = ww * ratio.current;
+      canvas.height = wh * ratio.current;
       canvas.style.width = `${ww || canvas.width}px`;
       canvas.style.height = `${wh || canvas.height}px`;
 
@@ -119,12 +125,24 @@ const ParticlesLogic = (props: Props) => {
 
       init.current(ctx);
     }
+    canvas.addEventListener("touchstart", function (event: any) {
+      mouse.x = event.touches.item(0).pageX;
+      mouse.y = event.touches.item(0).pageY;
+    });
+    canvas.addEventListener("touchmove", function (event: any) {
+      mouse.x = event.touches.item(0).pageX;
+      mouse.y = event.touches.item(0).pageY;
+    });
     canvas.addEventListener("mousemove", function (event: any) {
       mouse.x = event.x;
       mouse.y = event.y;
     });
     doit();
-    return () => window.removeEventListener("mousemove", doit);
+    return () => {
+      window.removeEventListener("touchstart", doit);
+      window.removeEventListener("touchmove", doit);
+      window.removeEventListener("mousemove", doit);
+    };
   }, [ww, wh, classes, props.stats, ctxFont, init]);
 
   init.current = (ctx: any) => {
@@ -170,6 +188,7 @@ const ParticlesLogic = (props: Props) => {
       Number((particleT as IRectangularParticle).h) > 0
         ? Number((particleT as IRectangularParticle).h)
         : defaultRectangularParticle.h;
+
     const currParticleA =
       Number((particleT as ITriangularParticle).a) > 0
         ? Number((particleT as ITriangularParticle).a)
@@ -184,7 +203,7 @@ const ParticlesLogic = (props: Props) => {
         : defaultTriangularParticle.c;
 
     let tempParticlesStats: ParticleStats = {
-      ...defaultParticle,
+      ...particleT,
       color: currParticleColor,
       type: currParticleType,
     };
@@ -231,7 +250,7 @@ const ParticlesLogic = (props: Props) => {
       imageWidth,
       imageHeight
     );
-    /* console.log(tempImageData.data.length); */
+
     setCA({
       ...currCA,
     });
@@ -261,12 +280,12 @@ const ParticlesLogic = (props: Props) => {
     // clear input text
     ctx.fillRect(0, 0, imageWidth, imageHeight);
 
-    const p = createNewParticle(ctx);
+    const p = createNewParticle(ctx, particleStats);
 
     animate(ctx, CA, imageData, p);
   };
 
-  const createNewParticle = (ctx: any) => {
+  const createNewParticle = (ctx: any, particleStats: ParticleStats) => {
     let p;
     switch (particleStats.type) {
       case "rect": {
@@ -301,7 +320,7 @@ const ParticlesLogic = (props: Props) => {
     return p;
   };
 
-  const nff = (
+  const drawParticles = (
     ctx: any,
     CA: Canvas,
     imageData: CtxImageDataType,
@@ -333,7 +352,7 @@ const ParticlesLogic = (props: Props) => {
             y,
             val: val,
           };
-          const newP = createNewParticle(ctx);
+          const newP = createNewParticle(ctx, p.getParticle());
           newP.setParticle(particle);
           newP.draw(ctx);
 
@@ -344,15 +363,14 @@ const ParticlesLogic = (props: Props) => {
     return tempParticles;
   };
 
-  const f = (
+  const animateHelper = (
     ctx: any,
     particles: Array<Particle>,
-    react: (p: Particle) => void
+    reactWrapper: (p: Particle) => void
   ) => {
     particles.forEach((p) => {
       p.draw(ctx);
-      /* console.log(p.particle.x); */
-      react(p);
+      reactWrapper(p);
     });
   };
 
@@ -362,78 +380,45 @@ const ParticlesLogic = (props: Props) => {
     imageData: CtxImageDataType,
     p: Particle
   ) => {
-    let particles = nff(ctx, CA, imageData, p);
+    let particles = drawParticles(ctx, CA, imageData, p);
+    let canMove: boolean | null = p.getParticle().movementType.canMove;
 
     let reactHelper = (p: Particle) => {};
 
-    if (particleT.movementType.canMove) {
+    if (canMove) {
       reactHelper = (p: Particle) => {
-        react(p.particle);
+        react(ratio.current, mouse, p.particle);
       };
     }
+
+    const requestAnimationFrame = window.requestAnimationFrame;
+    const cancelAnimationFrame = window.cancelAnimationFrame;
 
     const moveParticles = () => {
       ctx.fillStyle = "black";
       ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      f(ctx, particles, reactHelper);
+      animateHelper(ctx, particles, reactHelper);
 
-      window.requestAnimationFrame(moveParticles);
+      if (canMove) {
+        anim.current = requestAnimationFrame(moveParticles);
+      }
     };
 
     const staticParticles = () => {
-      f(ctx, particles, reactHelper);
+      animateHelper(ctx, particles, reactHelper);
     };
 
-    if (particleT.movementType.canMove) {
-      moveParticles();
+    if (canMove) {
+      /* setGlobalCanMove(true); */
+      anim.current = requestAnimationFrame(moveParticles);
     } else {
+      /* setGlobalCanMove(false); */
+      cancelAnimationFrame(anim.current);
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
       staticParticles();
     }
-  };
-
-  const react = (particle: IParticle) => {
-    const { distance, movementOnY, movementOnX } = movementParameters(particle);
-
-    if (distance < mouse.radius) {
-      particle.x += movementOnX;
-      particle.y += movementOnY;
-      /* } else if (this.goesBack) { */
-      /*   this.goBack(); */
-    }
-  };
-
-  const movementParameters = (
-    particle: IParticle
-  ): { distance: number; movementOnY: number; movementOnX: number } => {
-    const dx = mouse.x - particle.x;
-    const dy = mouse.y - particle.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    const args = {
-      distance,
-      mouse: mouse,
-    };
-    const moveBy = movementAlgorithm(args);
-    const movementOnX = moveBy(dx);
-    const movementOnY = moveBy(dy);
-
-    const params = {
-      distance,
-      movementOnX,
-      movementOnY,
-    };
-    return params;
-  };
-
-  const movementAlgorithm = (args: {
-    mouse: MouseType;
-    distance: number;
-  }): ((n: number) => number) => {
-    const { mouse, distance } = args;
-    const maxDistance = mouse.radius;
-    const force = (maxDistance - distance) / maxDistance;
-
-    return (d: number) => (d * force) / 100;
+    // called twice? does this component render twice?
   };
 
   return (
@@ -443,6 +428,57 @@ const ParticlesLogic = (props: Props) => {
       </Box>
     </>
   );
+};
+
+const react = (ratio: number, mouse: MouseType, particle: IParticle) => {
+  const { distance, movementOnY, movementOnX } = movementParameters(
+    ratio,
+    mouse,
+    particle
+  );
+
+  if (distance < mouse.radius) {
+    particle.x += movementOnX;
+    particle.y += movementOnY;
+    /* } else if (this.goesBack) { */
+    /*   this.goBack(); */
+  }
+};
+
+const movementParameters = (
+  ratio: number,
+  mouse: MouseType,
+  particle: IParticle
+): { distance: number; movementOnY: number; movementOnX: number } => {
+  const dx = mouse.x - particle.x / ratio;
+  const dy = mouse.y - particle.y / ratio;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  const args = {
+    distance,
+    mouse: mouse,
+  };
+  const moveBy = movementAlgorithm(args);
+  const movementOnX = moveBy(dx);
+  const movementOnY = moveBy(dy);
+
+  const params = {
+    distance,
+    movementOnX,
+    movementOnY,
+  };
+  return params;
+};
+
+const movementAlgorithm = (args: {
+  mouse: MouseType;
+  distance: number;
+}): ((n: number) => number) => {
+  const { mouse, distance } = args;
+  const maxDistance = mouse.radius;
+  const force = (maxDistance - distance) / maxDistance;
+
+  return (d: number) => (d * force) / 10;
 };
 
 export default ParticlesLogic;

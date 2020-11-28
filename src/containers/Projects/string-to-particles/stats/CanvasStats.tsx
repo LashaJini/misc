@@ -187,6 +187,7 @@ const CanvasStats = (props: Props) => {
   };
 
   const handleParticleRadiusChange = (event: Event) => {
+    /* console.log(event.target.value); */
     onParticleRadiusChange(parseFloat(event.target.value));
   };
 

@@ -64,15 +64,18 @@ export const defaultParticle: IParticle = {
 };
 export const defaultCircularParticle: ICircularParticle = {
   ...defaultParticle,
+  type: "circle",
   radius: 4.5,
 };
 export const defaultRectangularParticle: IRectangularParticle = {
   ...defaultParticle,
+  type: "rect",
   w: 5,
   h: 6,
 };
 export const defaultTriangularParticle: ITriangularParticle = {
   ...defaultParticle,
+  type: "tri",
   a: 5,
   b: 5,
   c: 5,

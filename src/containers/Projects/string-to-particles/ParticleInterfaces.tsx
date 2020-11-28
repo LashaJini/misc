@@ -39,6 +39,7 @@ export type {
   CanvasStepType,
   IStats,
   ParticleType,
+  ParticleT,
   CircularParticleType,
   RectangularParticleType,
   TriangularParticleType,
