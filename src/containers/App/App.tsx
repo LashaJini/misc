@@ -4,6 +4,8 @@ import { Navigation } from "../";
 import ParentTheme from "../../themes/ParentTheme";
 import { useMediaQuery } from "@material-ui/core";
 import { ThemeContext, ThemeContextType, ThemeType } from "../../context";
+import { HashRouter } from "react-router-dom";
+import { root } from "../../ohboi";
 
 /**
  * @author 109149
@@ -37,11 +39,13 @@ function App() {
   };
 
   return (
-    <ThemeContext.Provider value={themeContext}>
-      <ParentTheme>
-        <Navigation />
-      </ParentTheme>
-    </ThemeContext.Provider>
+    <HashRouter basename={`${root}`}>
+      <ThemeContext.Provider value={themeContext}>
+        <ParentTheme>
+          <Navigation />
+        </ParentTheme>
+      </ThemeContext.Provider>
+    </HashRouter>
   );
 }
 
