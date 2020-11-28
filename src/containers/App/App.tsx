@@ -5,6 +5,14 @@ import ParentTheme from "../../themes/ParentTheme";
 import { useMediaQuery } from "@material-ui/core";
 import { ThemeContext, ThemeContextType, ThemeType } from "../../context";
 
+/**
+ * @author 109149
+ * @time Sat 28 Nov 2020 23:04:34 +04
+ *
+ * Feel free to check the code, but please do not write as I did. I made a lot
+ * mistakes, there are also bugs and some performance issue.
+ */
+
 function App() {
   const prefersDarkMode = useMediaQuery("prefers-color-scheme: dark");
   const [theme, setTheme] = React.useState<ThemeType>(

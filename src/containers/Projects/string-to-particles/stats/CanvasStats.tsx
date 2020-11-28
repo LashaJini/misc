@@ -10,6 +10,7 @@ import {
   ParticleAdditionalParams,
 } from "./";
 import {
+  Divider,
   Input,
   InputLabel,
   Container,
@@ -390,7 +391,7 @@ const CanvasStats = (props: Props) => {
           <span style={{ fontSize: "0.7rem" }}>(1 is max, 10 is min)</span>
         </Typography>
         <Grid item container spacing={10}>
-          <Grid item xs={2} lg={2}>
+          <Grid item xs={2} lg={2} className={classes.sep}>
             <CanvasStepInput
               id="stepX"
               inputClass={classes.input}
@@ -401,7 +402,7 @@ const CanvasStats = (props: Props) => {
               {...{ className: classes.formControl }}
             />
           </Grid>
-          <Grid item xs={2} lg={2}>
+          <Grid item xs={2} lg={2} className={classes.sep}>
             <CanvasStepInput
               id="stepY"
               inputClass={classes.input}
@@ -415,14 +416,14 @@ const CanvasStats = (props: Props) => {
         </Grid>
       </Grid>
       <Grid item container spacing={0} xs={12} direction="column">
-        <Grid>
+        <Grid className={classes.sep}>
           <CanvasParticleType
             particleType={particleType}
             handleChange={handleParticleTypeChange}
             {...{ className: classes.formControl }}
           />
         </Grid>
-        <Grid>
+        <Grid className={classes.sep}>
           <ParticleAdditionalParams
             particleT={particleT}
             particleType={particleType}
@@ -435,7 +436,15 @@ const CanvasStats = (props: Props) => {
           />
         </Grid>
       </Grid>
-      <Grid item container spacing={0} xs={12} direction="column">
+      <Grid
+        item
+        container
+        spacing={0}
+        xs={12}
+        direction="column"
+        className={classes.sep}
+      >
+        <Divider />
         <Grid>
           <Container>
             <FormControlLabel
@@ -448,20 +457,21 @@ const CanvasStats = (props: Props) => {
         <Grid>
           {particleT.movementType.canMove ? (
             <>
-              <Grid>
+              <Grid className={classes.sep}>
                 <FormControl>
+                  <InputLabel shrink>Direction</InputLabel>
                   <Select
                     id="particle-movement-direction-select"
                     value={particleT.movementType.direction}
                     onChange={handleParticleDirectionChange}
+                    variant="outlined"
                   >
                     <MenuItem value="toMouse">Towards the Mouse</MenuItem>
                     <MenuItem value="fromMouse">Away from Mouse</MenuItem>
                   </Select>
-                  <FormHelperText>Select Particle Direction</FormHelperText>
                 </FormControl>
               </Grid>
-              <Grid>
+              <Grid className={classes.sep}>
                 <FormControl size="small">
                   <InputLabel htmlFor="movespeed">Factor</InputLabel>
                   <Input
@@ -474,7 +484,7 @@ const CanvasStats = (props: Props) => {
                   <FormHelperText>Particle Movespeed</FormHelperText>
                 </FormControl>
               </Grid>
-              <Grid>
+              <Grid className={classes.sep}>
                 <Container>
                   <FormControlLabel
                     checked={particleT.movementType.goesBack}
@@ -507,6 +517,7 @@ const CanvasStats = (props: Props) => {
         </Grid>
       </Grid>
       <Grid item container spacing={0} xs={12} direction="column">
+        <Divider />
         <Grid>
           <Container>
             <FormControlLabel
@@ -522,7 +533,7 @@ const CanvasStats = (props: Props) => {
               <Typography>WARNING! This drops fps</Typography>
               <Typography>Use for small number of particles</Typography>
             </Grid>
-            <br />
+            <Divider />
             <Grid>
               <CanvasColor
                 color={particleT.line.color}
@@ -530,7 +541,7 @@ const CanvasStats = (props: Props) => {
                 handleColorChange={handleLineColorChange}
               />
             </Grid>
-            <Grid item xs={2} lg={2}>
+            <Grid item xs={2} lg={2} className={classes.sep}>
               <CanvasScaleInput
                 id="line-thickness"
                 label="Line Thickness"
@@ -539,7 +550,7 @@ const CanvasStats = (props: Props) => {
                 inputClass={classes.scale}
               />
             </Grid>
-            <Grid item xs={2} lg={2}>
+            <Grid item xs={2} lg={2} className={classes.sep}>
               <CanvasScaleInput
                 id="line-maxDistance"
                 label="Max Distance Connection"

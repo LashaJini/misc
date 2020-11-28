@@ -35,6 +35,9 @@ export const useStyles = makeStyles((theme: Theme) =>
     input: {
       width: "4em",
     },
+    sep: {
+      marginTop: theme.spacing(2),
+    },
   })
 );
 

@@ -11,7 +11,7 @@ import { createStore, applyMiddleware } from "redux";
 import { rootReducer } from "./store";
 
 let store;
-if (process.env.NODE_ENV !== "development") {
+if (process.env.NODE_ENV === "development" && true) {
   const logger = createLogger();
 
   store = createStore(rootReducer, applyMiddleware(thunkMiddleware, logger));

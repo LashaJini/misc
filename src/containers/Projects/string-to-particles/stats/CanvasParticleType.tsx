@@ -25,6 +25,7 @@ const CanvasParticleType = (props: Props) => {
         id="particle-type-select"
         value={particleType}
         onChange={handleChange}
+        variant="outlined"
       >
         <MenuItem value="circle">Circular</MenuItem>
         <MenuItem value="rect">Rectangular</MenuItem>
