@@ -1,5 +1,6 @@
 import Particles from "./string-to-particles/Particles";
 import Playground from "./playground/Playground";
+import { root } from "../../ohboi";
 
 type ProjectTypes = {
   projectName: string;
@@ -12,7 +13,7 @@ const devProjects: Array<ProjectTypes> =
     ? [
         {
           projectName: "Playground",
-          path: "/projects/playground",
+          path: `${root}/projects/playground`,
           component: Playground,
         },
       ]
@@ -22,7 +23,7 @@ export const projectNames: Array<ProjectTypes> = [
   ...devProjects,
   {
     projectName: "To Particles",
-    path: "/projects/to-particles",
+    path: `${root}/projects/to-particles`,
     component: Particles,
   },
 ];

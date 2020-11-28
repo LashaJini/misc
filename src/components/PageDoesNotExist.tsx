@@ -4,6 +4,7 @@ import { AppBarContext } from "../context";
 import { Link } from "react-router-dom";
 import ReplyIcon from "@material-ui/icons/Reply";
 import HomeIcon from "@material-ui/icons/Home";
+import { root } from "../ohboi";
 
 const PageDoesNotExist = (props: any) => {
   const { toggleAppBar } = React.useContext(AppBarContext);
@@ -38,7 +39,7 @@ const PageDoesNotExist = (props: any) => {
         <Grid item container justify="center" alignItems="flex-end">
           <Button
             component={Link}
-            to="/"
+            to={`${root}`}
             variant="contained"
             size="large"
             endIcon={<HomeIcon />}

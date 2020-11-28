@@ -23,6 +23,7 @@ import {
   IRectangularParticle,
   ITriangularParticle,
 } from "../../../store/stats/types";
+import { root } from "../../../ohboi";
 
 const mapStateToProps = (state: RootState) => {
   return {
@@ -159,7 +160,7 @@ const Stats = (props: IProps) => {
           <Button
             {...buttonStyle}
             component={Link}
-            to="/"
+            to={`${root}`}
             onClick={() => toggleAppBar(true)}
           >
             Home

@@ -17,6 +17,8 @@ import HomeIcon from "@material-ui/icons/Home";
 import { Routes, ComponentRoutes } from "./Routes";
 import { AppBarContext } from "../../context";
 
+import { root } from "../../ohboi";
+
 interface Props {
   window?: () => Window;
   enableAppBar: boolean;
@@ -73,7 +75,7 @@ const Navigation = () => {
               <div className={classes.nav}>
                 <Tooltip title="Home" aria-label="home" arrow {...toolTip}>
                   <span>
-                    <Button component={Link} to="/">
+                    <Button component={Link} to={`${root}`}>
                       <HomeIcon />
                     </Button>
                   </span>

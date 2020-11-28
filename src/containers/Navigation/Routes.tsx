@@ -5,6 +5,7 @@ import Home from "../Home/Home";
 import PageDoesNotExist from "../../components/PageDoesNotExist";
 
 import { projectNames } from "../Projects";
+import { root } from "../../ohboi";
 
 export type ComponentRoutes = {
   name: string;
@@ -28,7 +29,7 @@ export const Routes: Array<ComponentRoutes> = [
   ...projectRoutes,
   {
     name: "Home",
-    path: "/",
+    path: `${root}`,
     component: Home,
   },
   {
