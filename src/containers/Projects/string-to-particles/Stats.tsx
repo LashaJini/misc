@@ -101,6 +101,7 @@ const Stats = (props: IProps) => {
         c: (stats.particleT as ITriangularParticle).c,
         movementType: { ...stats.particleT.movementType },
         color: stats.particleT.color,
+        line: stats.particleT.line,
       },
     };
     /* console.log("in update stats", stats); */

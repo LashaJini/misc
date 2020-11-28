@@ -4,14 +4,20 @@ import {
   CanvasParticleType,
   CanvasText,
   CanvasPx,
-  CanvasParticleColor,
+  CanvasColor,
   CanvasScaleInput,
   CanvasStepInput,
   ParticleAdditionalParams,
 } from "./";
 import {
+  Input,
+  InputLabel,
   Container,
   FormControlLabel,
+  FormControl,
+  Select,
+  MenuItem,
+  FormHelperText,
   Switch,
   Typography,
   Grid,
@@ -20,11 +26,14 @@ import { connect, ConnectedProps } from "react-redux";
 import { RootState } from "../../../../store";
 import {
   setCanvasText,
+  setLine,
+  setParticleConnectionType,
   setCanvasTextSize,
   setParticleRadius,
   setParticleWidth,
   setParticleHeight,
   setParticleMovementType,
+  setParticleMovementDirectionType,
   setParticleA,
   setParticleB,
   setParticleC,
@@ -41,10 +50,13 @@ import {
   /* CanvasFontType, */
   CanvasTextSizeType,
   ParticleColorType,
+  ParticleConnectionType,
   ParticleRadiusType,
   ParticleWidthType,
   ParticleHeightType,
   IParticleMovement,
+  ILine,
+  MovementDirectionType,
   ParticleAType,
   ParticleBType,
   ParticleCType,
@@ -107,6 +119,19 @@ const mapDispatchToProps = (dispatch: any) => {
     onParticleMovementTypeChange: (movementType: IParticleMovement) => {
       dispatch(setParticleMovementType(movementType));
     },
+    onParticleMovementDirectionChange: (
+      directionType: MovementDirectionType
+    ) => {
+      dispatch(setParticleMovementDirectionType(directionType));
+    },
+    onParticleConnectionTypeChange: (
+      connectionType: ParticleConnectionType
+    ) => {
+      dispatch(setParticleConnectionType(connectionType));
+    },
+    onLineChange: (line: ILine) => {
+      dispatch(setLine(line));
+    },
   };
 };
 
@@ -128,6 +153,7 @@ const CanvasStats = (props: Props) => {
   } = props.stats;
   const {
     onCanvasTextChange,
+    onLineChange,
     onCanvasPxChange,
     onParticleColorChange,
     onParticleRadiusChange,
@@ -142,6 +168,7 @@ const CanvasStats = (props: Props) => {
     onCanvasScaleXChange,
     onParticleTypeChange,
     onParticleMovementTypeChange,
+    /* onParticleMovementDirectionChange, */
   } = props;
 
   const handleCanvasTextChange = (event: Event) => {
@@ -221,10 +248,87 @@ const CanvasStats = (props: Props) => {
   const toggleParticleCanMove = () => {
     const canMove = !particleT.movementType.canMove;
     const res: IParticleMovement = {
+      ...particleT.movementType,
       canMove,
-      direction: undefined,
     };
     onParticleMovementTypeChange(res);
+  };
+
+  const handleParticleDirectionChange = (
+    event: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    const direction = event.target.value as MovementDirectionType;
+    const res: IParticleMovement = {
+      ...particleT.movementType,
+      direction,
+    };
+    onParticleMovementTypeChange(res);
+  };
+
+  const toggleParticleGoesBack = () => {
+    const goesBack = !particleT.movementType.goesBack;
+    const res: IParticleMovement = {
+      ...particleT.movementType,
+      goesBack,
+    };
+    onParticleMovementTypeChange(res);
+  };
+
+  const handleParticleMoveSpeedChange = (event: Event) => {
+    const moveSpeedFactor = parseFloat(event.target.value);
+    const res: IParticleMovement = {
+      ...particleT.movementType,
+      moveSpeedFactor,
+    };
+    onParticleMovementTypeChange(res);
+  };
+
+  const handleParticleGoBackMoveSpeedChange = (event: Event) => {
+    const goBackMoveSpeedFactor = parseFloat(event.target.value);
+    const res: IParticleMovement = {
+      ...particleT.movementType,
+      goBackMoveSpeedFactor,
+    };
+    onParticleMovementTypeChange(res);
+  };
+
+  const handleParticleConnectionTypeChange = () => {
+    const connected = !particleT.line.connected;
+    const res: ILine = {
+      ...particleT.line,
+      connected,
+    };
+    onLineChange(res);
+    /* onParticleConnectionTypeChange(connected); */
+  };
+
+  const handleLineColorChange = (event: Event) => {
+    const color = event.target.value.trim().toLowerCase();
+    const res: ILine = {
+      ...particleT.line,
+      color,
+    };
+    onLineChange(res);
+  };
+
+  const handleLineThicknessChange = (event: Event) => {
+    const temp = parseInt(event.target.value);
+    const thickness = temp > 0 ? temp : particleT.line.thickness;
+    const res: ILine = {
+      ...particleT.line,
+      thickness,
+    };
+    onLineChange(res);
+  };
+
+  const handleLineMaxDistanceConnection = (event: Event) => {
+    const temp = parseInt(event.target.value);
+    const maxDistance = temp > 0 ? temp : particleT.line.thickness;
+    const res: ILine = {
+      ...particleT.line,
+      maxDistance,
+    };
+    onLineChange(res);
   };
 
   return (
@@ -244,9 +348,10 @@ const CanvasStats = (props: Props) => {
       </Grid>
       <Grid item container spacing={0} alignItems="flex-end" xs={12}>
         <Grid item xs={12}>
-          <CanvasParticleColor
-            particleColor={particleT.color}
-            handleParticleColorChange={handleParticleColorChange}
+          <CanvasColor
+            color={particleT.color}
+            id="particle-color"
+            handleColorChange={handleParticleColorChange}
           />
         </Grid>
       </Grid>
@@ -331,13 +436,120 @@ const CanvasStats = (props: Props) => {
         </Grid>
       </Grid>
       <Grid item container spacing={0} xs={12} direction="column">
-        <Container>
-          <FormControlLabel
-            checked={particleT.movementType.canMove}
-            label="Particles Can Move"
-            control={<Switch onChange={toggleParticleCanMove} />}
-          />
-        </Container>
+        <Grid>
+          <Container>
+            <FormControlLabel
+              checked={particleT.movementType.canMove}
+              label="Particles Can Move"
+              control={<Switch onChange={toggleParticleCanMove} />}
+            />
+          </Container>
+        </Grid>
+        <Grid>
+          {particleT.movementType.canMove ? (
+            <>
+              <Grid>
+                <FormControl>
+                  <Select
+                    id="particle-movement-direction-select"
+                    value={particleT.movementType.direction}
+                    onChange={handleParticleDirectionChange}
+                  >
+                    <MenuItem value="toMouse">Towards the Mouse</MenuItem>
+                    <MenuItem value="fromMouse">Away from Mouse</MenuItem>
+                  </Select>
+                  <FormHelperText>Select Particle Direction</FormHelperText>
+                </FormControl>
+              </Grid>
+              <Grid>
+                <FormControl size="small">
+                  <InputLabel htmlFor="movespeed">Factor</InputLabel>
+                  <Input
+                    id="movespeed"
+                    type="number"
+                    inputProps={{ min: -100, max: 100 }}
+                    value={particleT.movementType.moveSpeedFactor}
+                    onChange={handleParticleMoveSpeedChange}
+                  />
+                  <FormHelperText>Particle Movespeed</FormHelperText>
+                </FormControl>
+              </Grid>
+              <Grid>
+                <Container>
+                  <FormControlLabel
+                    checked={particleT.movementType.goesBack}
+                    label="Particle Goes Back"
+                    control={<Switch onChange={toggleParticleGoesBack} />}
+                  />
+                </Container>
+              </Grid>
+              {particleT.movementType.goesBack && (
+                <Grid>
+                  <FormControl size="small">
+                    <InputLabel htmlFor="goback-movespeed">Factor</InputLabel>
+                    <Input
+                      id="goback-movespeed"
+                      type="number"
+                      inputProps={{ min: 1, max: 100 }}
+                      value={particleT.movementType.goBackMoveSpeedFactor}
+                      onChange={handleParticleGoBackMoveSpeedChange}
+                    />
+                    <FormHelperText>
+                      Particle Going Back Movespeed
+                    </FormHelperText>
+                  </FormControl>
+                </Grid>
+              )}
+            </>
+          ) : (
+            <></>
+          )}
+        </Grid>
+      </Grid>
+      <Grid item container spacing={0} xs={12} direction="column">
+        <Grid>
+          <Container>
+            <FormControlLabel
+              checked={particleT.line.connected}
+              label="Connect Particles"
+              control={<Switch onChange={handleParticleConnectionTypeChange} />}
+            />
+          </Container>
+        </Grid>
+        {particleT.line.connected && (
+          <Grid item container spacing={0} xs={12} direction="column">
+            <Grid>
+              <Typography>WARNING! This drops fps</Typography>
+              <Typography>Use for small number of particles</Typography>
+            </Grid>
+            <br />
+            <Grid>
+              <CanvasColor
+                color={particleT.line.color}
+                id="line-color"
+                handleColorChange={handleLineColorChange}
+              />
+            </Grid>
+            <Grid item xs={2} lg={2}>
+              <CanvasScaleInput
+                id="line-thickness"
+                label="Line Thickness"
+                value={particleT.line.thickness}
+                handleChange={handleLineThicknessChange}
+                inputClass={classes.scale}
+              />
+            </Grid>
+            <Grid item xs={2} lg={2}>
+              <CanvasScaleInput
+                id="line-maxDistance"
+                label="Max Distance Connection"
+                value={particleT.line.maxDistance}
+                handleChange={handleLineMaxDistanceConnection}
+                inputClass={classes.scale}
+              />
+            </Grid>
+          </Grid>
+        )}
       </Grid>
     </Grid>
   );

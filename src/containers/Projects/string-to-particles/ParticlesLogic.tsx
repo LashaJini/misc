@@ -95,11 +95,8 @@ const ParticlesLogic = (props: Props) => {
   const [particleStats, setParticleStats] = React.useState<ParticleStats>(
     defaultParticle
   );
-  /* const [globalCanMove, setGlobalCanMove] = React.useState(false); */
-  /* const [anim, setAnim] = React.useState<number>(0); */
   const anim = React.useRef(1);
   const ratio = React.useRef<number>(1);
-  /* const [helper, setHelper] = React.useState<any>(""); */
 
   const init: any = React.useRef(() => {});
 
@@ -138,6 +135,7 @@ const ParticlesLogic = (props: Props) => {
       mouse.y = event.y;
     });
     doit();
+    /* console.log("FIRED"); */
     return () => {
       window.removeEventListener("touchstart", doit);
       window.removeEventListener("touchmove", doit);
@@ -278,7 +276,8 @@ const ParticlesLogic = (props: Props) => {
   ) => {
     ctx.fillStyle = classes.ctx.backgroundColor;
     // clear input text
-    ctx.fillRect(0, 0, imageWidth, imageHeight);
+    /* ctx.fillRect(0, 0, imageWidth, imageHeight); */
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     const p = createNewParticle(ctx, particleStats);
 
@@ -382,6 +381,8 @@ const ParticlesLogic = (props: Props) => {
   ) => {
     let particles = drawParticles(ctx, CA, imageData, p);
     let canMove: boolean | null = p.getParticle().movementType.canMove;
+    let connected: boolean | null = p.getParticle().line.connected;
+    /* const rgb = { red: 255, green: 255, blue: 255 }; */
 
     let reactHelper = (p: Particle) => {};
 
@@ -399,6 +400,7 @@ const ParticlesLogic = (props: Props) => {
       ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
       animateHelper(ctx, particles, reactHelper);
 
+      connectLines();
       if (canMove) {
         anim.current = requestAnimationFrame(moveParticles);
       }
@@ -408,17 +410,21 @@ const ParticlesLogic = (props: Props) => {
       animateHelper(ctx, particles, reactHelper);
     };
 
+    const connectLines = () => {
+      if (connected) {
+        connectParticlesWithLines(particles, ctx);
+      }
+    };
+
+    cancelAnimationFrame(anim.current);
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     if (canMove) {
-      /* setGlobalCanMove(true); */
       anim.current = requestAnimationFrame(moveParticles);
     } else {
-      /* setGlobalCanMove(false); */
-      cancelAnimationFrame(anim.current);
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      connectLines();
       staticParticles();
     }
-    // called twice? does this component render twice?
   };
 
   return (
@@ -438,10 +444,22 @@ const react = (ratio: number, mouse: MouseType, particle: IParticle) => {
   );
 
   if (distance < mouse.radius) {
-    particle.x += movementOnX;
-    particle.y += movementOnY;
-    /* } else if (this.goesBack) { */
-    /*   this.goBack(); */
+    if (particle.movementType.direction === "toMouse") {
+      particle.x += movementOnX;
+      particle.y += movementOnY;
+    } else if (particle.movementType.direction === "fromMouse") {
+      particle.x -= movementOnX;
+      particle.y -= movementOnY;
+    }
+  } else if (particle.movementType.goesBack) {
+    if (particle.x !== particle.initialX) {
+      const dx = particle.x - particle.initialX;
+      particle.x -= dx / particle.movementType.goBackMoveSpeedFactor;
+    }
+    if (particle.y !== particle.initialY) {
+      const dy = particle.y - particle.initialY;
+      particle.y -= dy / particle.movementType.goBackMoveSpeedFactor;
+    }
   }
 };
 
@@ -453,9 +471,11 @@ const movementParameters = (
   const dx = mouse.x - particle.x / ratio;
   const dy = mouse.y - particle.y / ratio;
   const distance = Math.sqrt(dx * dx + dy * dy);
+  const moveSpeedFactor = particle.movementType.moveSpeedFactor;
 
   const args = {
     distance,
+    moveSpeedFactor,
     mouse: mouse,
   };
   const moveBy = movementAlgorithm(args);
@@ -472,13 +492,59 @@ const movementParameters = (
 
 const movementAlgorithm = (args: {
   mouse: MouseType;
+  moveSpeedFactor: number;
   distance: number;
 }): ((n: number) => number) => {
-  const { mouse, distance } = args;
+  const { mouse, distance, moveSpeedFactor } = args;
   const maxDistance = mouse.radius;
   const force = (maxDistance - distance) / maxDistance;
 
-  return (d: number) => (d * force) / 10;
+  return (d: number) => (d * force) / moveSpeedFactor;
+};
+
+const connectParticlesWithLines = (particles: Array<Particle>, ctx: any) => {
+  let opacityValue = 1; // fully visible
+
+  const maxDistance = particles[0].particle.line.maxDistance;
+  const lineColor = particles[0].particle.line.color;
+  const hexToRgb = (hex: string) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); // :/
+    return result
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
+      : null;
+  };
+  const rgb = hexToRgb(lineColor);
+  let red, green, blue;
+  if (rgb) {
+    red = rgb.r;
+    green = rgb.g;
+    blue = rgb.b;
+  } else {
+    red = green = blue = 255;
+  }
+
+  const lineWidth = particles[0].particle.line.thickness;
+  for (let a = 0; a < particles.length; a++) {
+    for (let b = a; b < particles.length; b++) {
+      const dx = particles[a].particle.x - particles[b].particle.x;
+      const dy = particles[a].particle.y - particles[b].particle.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance < maxDistance) {
+        opacityValue = 1 - distance / maxDistance;
+        ctx.strokeStyle = `rgba(${red}, ${green}, ${blue}, ${opacityValue})`;
+        /* ctx.strokeStyle = color; */
+        ctx.lineWidth = lineWidth;
+        ctx.beginPath();
+        ctx.moveTo(particles[a].particle.x, particles[a].particle.y);
+        ctx.lineTo(particles[b].particle.x, particles[b].particle.y);
+        ctx.stroke();
+      }
+    }
+  }
 };
 
 export default ParticlesLogic;

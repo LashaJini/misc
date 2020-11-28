@@ -1,7 +1,10 @@
 import {
   RESET_STATS_TO_DEFAULTS,
   CHANGE_CANVAS_TEXTFIELD,
+  CHANGE_LINE,
   CHANGE_PARTICLE_MOVEMENT,
+  CHANGE_PARTICLE_MOVEMENT_DIRECTION,
+  CHANGE_PARTICLE_CONNECTION,
   CHANGE_PARTICLE_WIDTH,
   CHANGE_PARTICLE_HEIGHT,
   CHANGE_PARTICLE_A,
@@ -22,6 +25,7 @@ import {
   ICircularParticle,
   IRectangularParticle,
   ITriangularParticle,
+  ILine,
 } from "./types";
 
 const textArray: Array<string> = ["😈", "22ci❤️", "😡", "AC⚡DC"];
@@ -48,7 +52,17 @@ const getRandomStats = () => {
 const randomStats = getRandomStats();
 export const defaultParticleMovement: IParticleMovement = {
   canMove: false,
-  direction: undefined,
+  goesBack: false,
+  direction: "fromMouse",
+  moveSpeedFactor: 10,
+  goBackMoveSpeedFactor: 10,
+};
+
+export const defaultLine: ILine = {
+  connected: false,
+  color: randomStats.color,
+  thickness: 3,
+  maxDistance: 20,
 };
 
 export const defaultParticle: IParticle = {
@@ -60,12 +74,14 @@ export const defaultParticle: IParticle = {
   val: 0,
   color: randomStats.color,
   movementType: defaultParticleMovement,
+  line: defaultLine,
+  /* connected: false, */
   filled: true,
 };
 export const defaultCircularParticle: ICircularParticle = {
   ...defaultParticle,
   type: "circle",
-  radius: 4.5,
+  radius: 3.5,
 };
 export const defaultRectangularParticle: IRectangularParticle = {
   ...defaultParticle,
@@ -151,8 +167,23 @@ export const statsReducer = (
         particleType: action.payload,
       });
     case CHANGE_PARTICLE_MOVEMENT:
+    case CHANGE_PARTICLE_MOVEMENT_DIRECTION:
       return Object.assign({}, state, {
         particleT: { ...state.particleT, movementType: action.payload },
+      });
+    case CHANGE_PARTICLE_CONNECTION:
+      return Object.assign({}, state, {
+        particleT: {
+          ...state.particleT,
+          connected: action.payload,
+        },
+      });
+    case CHANGE_LINE:
+      return Object.assign({}, state, {
+        particleT: {
+          ...state.particleT,
+          line: action.payload,
+        },
       });
     default:
       return state;

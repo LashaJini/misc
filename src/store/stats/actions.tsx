@@ -1,7 +1,10 @@
 import {
   RESET_STATS_TO_DEFAULTS,
   CHANGE_PARTICLE_TYPE,
+  CHANGE_LINE,
   CHANGE_PARTICLE_MOVEMENT,
+  CHANGE_PARTICLE_CONNECTION,
+  CHANGE_PARTICLE_MOVEMENT_DIRECTION,
   CHANGE_CANVAS_TEXTFIELD,
   CHANGE_CANVAS_TEXT_SIZE,
   CHANGE_PARTICLE_RADIUS,
@@ -31,6 +34,9 @@ import {
   ParticleBType,
   ParticleCType,
   IParticleMovement,
+  MovementDirectionType,
+  ParticleConnectionType,
+  ILine,
 } from "./types";
 
 export const resetStats = (defaultStats: IStats): StatsActionType => {
@@ -160,5 +166,30 @@ export const setParticleMovementType = (
   return {
     type: CHANGE_PARTICLE_MOVEMENT,
     payload: newMove,
+  };
+};
+
+export const setParticleMovementDirectionType = (
+  newDirection: MovementDirectionType
+): StatsActionType => {
+  return {
+    type: CHANGE_PARTICLE_MOVEMENT_DIRECTION,
+    payload: newDirection,
+  };
+};
+
+export const setParticleConnectionType = (
+  newConnection: ParticleConnectionType
+): StatsActionType => {
+  return {
+    type: CHANGE_PARTICLE_CONNECTION,
+    payload: newConnection,
+  };
+};
+
+export const setLine = (newLine: ILine): StatsActionType => {
+  return {
+    type: CHANGE_LINE,
+    payload: newLine,
   };
 };

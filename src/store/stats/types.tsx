@@ -1,6 +1,7 @@
 export const CHANGE_CANVAS_TEXTFIELD = "CHANGE_CANVAS_TEXTFIELD";
 export const CHANGE_CANVAS_TEXT_SIZE = "CHANGE_CANVAS_TEXT_SIZE";
 export const CHANGE_PARTICLE_RADIUS = "CHANGE_PARTICLE_RADIUS";
+export const CHANGE_PARTICLE_CONNECTION = "CHANGE_PARTICLE_CONNECTION";
 export const CHANGE_PARTICLE_WIDTH = "CHANGE_PARTICLE_WIDTH";
 export const CHANGE_PARTICLE_HEIGHT = "CHANGE_PARTICLE_HEIGHT";
 export const CHANGE_PARTICLE_A = "CHANGE_PARTICLE_A";
@@ -12,17 +13,23 @@ export const CHANGE_SCALE_BY_Y = "CHANGE_SCALE_BY_Y";
 export const CHANGE_STEP_ON_X = "CHANGE_STEP_ON_X";
 export const CHANGE_STEP_ON_Y = "CHANGE_STEP_ON_Y";
 export const CHANGE_PARTICLE_TYPE = "CHANGE_PARTICLE_TYPE";
+export const CHANGE_LINE = "CHANGE_LINE";
 export const CHANGE_PARTICLE_MOVEMENT = "CHANGE_PARTICLE_MOVEMENT";
+export const CHANGE_PARTICLE_MOVEMENT_DIRECTION =
+  "CHANGE_PARTICLE_MOVEMENT_DIRECTION";
 export const RESET_STATS_TO_DEFAULTS = "RESET_STATS_TO_DEFAULTS";
 export type StatsType =
   | typeof RESET_STATS_TO_DEFAULTS
   | typeof CHANGE_CANVAS_TEXTFIELD
   | typeof CHANGE_CANVAS_TEXT_SIZE
   | typeof CHANGE_PARTICLE_RADIUS
+  | typeof CHANGE_LINE
   | typeof CHANGE_PARTICLE_COLOR
   | typeof CHANGE_PARTICLE_WIDTH
   | typeof CHANGE_PARTICLE_HEIGHT
   | typeof CHANGE_PARTICLE_MOVEMENT
+  | typeof CHANGE_PARTICLE_MOVEMENT_DIRECTION
+  | typeof CHANGE_PARTICLE_CONNECTION
   | typeof CHANGE_PARTICLE_A
   | typeof CHANGE_PARTICLE_B
   | typeof CHANGE_PARTICLE_C
@@ -38,6 +45,8 @@ export type TriangularParticleType = "tri";
 export type TowardsTheMouse = "toMouse";
 export type AwayFromMouse = "fromMouse";
 
+export type ParticleConnectionType = boolean;
+
 export type CanvasStepType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | undefined;
 export type CanvasFontType = string;
 export type CanvasTextFieldType = string;
@@ -48,6 +57,7 @@ export type ParticleHeightType = number | undefined;
 export type ParticleAType = number | undefined;
 export type ParticleBType = number | undefined;
 export type ParticleCType = number | undefined;
+export type LineColorType = string;
 export type ParticleColorType = string;
 export type CanvasScaleType = number | undefined;
 export type MovementDirectionType = TowardsTheMouse | AwayFromMouse | undefined;
@@ -59,7 +69,17 @@ export type ParticleType =
 
 export interface IParticleMovement {
   canMove: boolean;
+  goesBack: boolean;
   direction: MovementDirectionType;
+  moveSpeedFactor: number;
+  goBackMoveSpeedFactor: number;
+}
+
+export interface ILine {
+  connected: ParticleConnectionType;
+  color: LineColorType;
+  thickness: number;
+  maxDistance: number;
 }
 
 export interface IParticle {
@@ -71,6 +91,7 @@ export interface IParticle {
   val: number;
   color: ParticleColorType;
   movementType: IParticleMovement;
+  line: ILine;
   filled: boolean;
 }
 export interface ICircularParticle extends IParticle {
@@ -183,9 +204,26 @@ interface SetParticleMovementType {
   payload: IParticleMovement;
 }
 
+interface SetParticleMovementDirectionType {
+  type: typeof CHANGE_PARTICLE_MOVEMENT_DIRECTION;
+  payload: MovementDirectionType;
+}
+
+interface SetParticleConnectionType {
+  type: typeof CHANGE_PARTICLE_CONNECTION;
+  payload: ParticleConnectionType;
+}
+
+interface SetLineType {
+  type: typeof CHANGE_LINE;
+  payload: ILine;
+}
+
 export type StatsActionType =
   | SetStatsAction
   | SetParticleMovementType
+  | SetParticleMovementDirectionType
+  | SetParticleConnectionType
   | SetParticleType
   | SetParticleWidth
   | SetParticleA
@@ -198,5 +236,6 @@ export type StatsActionType =
   | SetCanvasScaleY
   | SetParticleRadius
   | SetParticleColor
+  | SetLineType
   | SetCanvasTextAction
   | SetCanvasTextSizeAction;

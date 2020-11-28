@@ -39,7 +39,7 @@ const Playground = () => {
       <div className={classes.div}></div>
       <Container>
         <Box my={2} mx={2}>
-          {[...new Array(12)]
+          {[...new Array(20)]
             .map(
               () => `Consectetur soluta sunt in inventore doloremque Perspiciatis
         pariatur architecto provident iure eum molestiae fuga minus debitis
