@@ -2,7 +2,7 @@
   "name": "misc",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://109149.github.io/misc",
+  "homepage": "https://109149.github.io",
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
