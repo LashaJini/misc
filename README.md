@@ -1,6 +1,6 @@
 # Misc
 
-https://109149.github.io/misc/
+https://109149.rocks/misc/projects/to-particles
 
 ## TODO
 
